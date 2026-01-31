@@ -152,7 +152,7 @@
       pointer-events:none;
       z-index: 1;
     }
-    input[type="number"], input[type="text"]{
+    input[type="number"]{
       width:100%;
       padding:12px 12px 12px 34px;
       font-size:16px;
@@ -166,17 +166,17 @@
       -moz-appearance: textfield;
       appearance: none;
       transition: all 0.2s ease;
-      min-height: 48px;
     }
-    input:focus{
+    input[type="number"]:focus{
       border-color: var(--border-active);
       box-shadow:0 0 0 4px rgba(255,107,53,.12);
     }
-    input::placeholder {
+    input[type="number"]::placeholder {
       color: var(--text-secondary);
       opacity: 0.5;
     }
-    input:focus::placeholder {
+    
+    input[type="number"]:focus::placeholder {
       opacity: 0.3;
     }
 
@@ -197,8 +197,6 @@
       font-size:14px;
       color: var(--text-primary);
       transition: all 0.3s ease;
-      min-height: 48px;
-      line-height: 24px;
     }
 
     .btnrow{
@@ -215,7 +213,6 @@
       transition:transform .1s, box-shadow .1s, opacity .1s;
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
-      min-height: 48px;
     }
     button:active{ transform:translateY(1px); }
 
@@ -228,6 +225,7 @@
       background:linear-gradient(135deg, var(--btn-gradient-start) 0%, var(--btn-gradient-end) 100%);
       color: var(--text-inverse);
       box-shadow:0 4px 14px rgba(255,107,53,.28);
+      min-height: 48px;
     }
     .btn.secondary{
       background: var(--card-bg);
@@ -235,6 +233,7 @@
       border:2px solid var(--border-active);
       box-shadow:none;
     }
+    .btn.secondary:hover{ box-shadow:0 2px 12px rgba(255,107,53,.16); }
 
     .error{
       display:none;
@@ -257,8 +256,19 @@
     }
 
     @keyframes slideIn {
-      from { opacity: 0; transform: translateY(-10px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .calculating {
+      pointer-events: none;
+      opacity: 0.6;
     }
 
     .section-title{
@@ -319,10 +329,6 @@
       line-height:1.35;
     }
     .note b{ font-weight:900; }
-
-    @media (max-width:420px){
-      .cards{ grid-template-columns:1fr; }
-    }
   </style>
 </head>
 <body>
@@ -344,29 +350,482 @@
         <div class="input-wrap">
           <span class="prefix" aria-hidden="true">$</span>
           <input 
-            type="text"
+            type="number" 
             id="retailPrice" 
             placeholder="0" 
+            step="0.01" 
+            min="0" 
             inputmode="decimal"
             aria-label="Retail price in dollars"
             aria-describedby="retailHelp"
           />
         </div>
         <div class="help" id="retailHelp">Tip: For phones, retail is rounded to a whole dollar.</div>
-      </div
+      </div>
 
-# Oops. The user provided truncated code. We'll instead use the already-built file in /mnt/data from earlier run if exists.
-"""
+      <div class="grid2">
+        <div class="input-group">
+          <label class="label" for="taxRate">Tax Rate (%)</label>
+          <div class="input-wrap">
+            <span class="prefix" aria-hidden="true">%</span>
+            <input 
+              type="number" 
+              id="taxRate" 
+              value="8.9" 
+              step="0.01" 
+              min="0" 
+              max="100" 
+              inputmode="decimal"
+              aria-label="Tax rate percentage"
+              aria-describedby="taxHelp"
+            />
+          </div>
+          <div class="help" id="taxHelp">Enter your local tax rate (example: <b>8.9</b>).</div>
+        </div>
 
-# Since the pasted code in chat is truncated, we will copy the already created ready-to-share file.
-# We'll just read it from /mnt/data/DevicePaymentCalculator_READY_TO_SHARE.html and write to a stable path.
-from pathlib import Path
+        <div class="input-group">
+          <label class="label">Term</label>
+          <div class="pill">24 months</div>
+          <div class="help">Fixed term.</div>
+        </div>
+      </div>
 
-src = Path("/mnt/data/DevicePaymentCalculator_READY_TO_SHARE.html")
-if not src.exists():
-    raise FileNotFoundError("Expected existing ready-to-share file missing.")
-dst = Path("/mnt/data/DevicePaymentCalculator_GitHubReady.html")
-dst.write_text(src.read_text(encoding="utf-8"), encoding="utf-8")
-print(dst)
+      <div class="btnrow">
+        <button class="btn" type="button" id="calcBtn">Calculate</button>
+        <button class="btn secondary" id="copyBtn" type="button">Copy Summary</button>
+        <button class="btn secondary" type="button" id="resetBtn">Reset</button>
+      </div>
 
-::contentReference[oaicite:0]{index=0}
+      <div class="error" id="errorBox"></div>
+
+      <div class="results" id="results">
+        <div class="section-title">At a Glance</div>
+
+        <div class="cards">
+          <div class="mini-card">
+            <div class="mini-title">Pay in Full Today</div>
+            <div class="mini-value" id="payFullToday">$0.00</div>
+            <div class="mini-sub">Retail + tax</div>
+          </div>
+
+          <div class="mini-card highlight">
+            <div class="mini-title">Due Today</div>
+            <div class="mini-value" id="dueToday">$0.00</div>
+            <div class="mini-sub">Down + tax</div>
+          </div>
+        </div>
+
+        <div class="cards" style="margin-bottom:6px;">
+          <div class="mini-card">
+            <div class="mini-title">Monthly Payment</div>
+            <div class="mini-value" id="infoMonthly">$0.00</div>
+            <div class="mini-sub">x 24 months</div>
+          </div>
+          <div class="mini-card">
+            <div class="mini-title">Remaining Balance</div>
+            <div class="mini-value" id="infoBalance">$0.00</div>
+            <div class="mini-sub">After down</div>
+          </div>
+          <div class="mini-card">
+            <div class="mini-title">Down Payment</div>
+            <div class="mini-value" id="infoDown">$0.00</div>
+            <div class="mini-sub" id="downSub">Auto</div>
+          </div>
+          <div class="mini-card">
+            <div class="mini-title">Sales Tax</div>
+            <div class="mini-value" id="infoTax">$0.00</div>
+            <div class="mini-sub">On retail</div>
+          </div>
+        </div>
+
+        <div class="note" id="roundingNote"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const TERM = 24;
+    let currentDeviceType = 'phone';
+
+    const retailPriceInput = document.getElementById('retailPrice');
+    const taxRateInput = document.getElementById('taxRate');
+    const results = document.getElementById('results');
+    const errorBox = document.getElementById('errorBox');
+    const roundingNoteDiv = document.getElementById('roundingNote');
+    const retailHelp = document.getElementById('retailHelp');
+    const copyBtn = document.getElementById('copyBtn');
+    const phoneBtn = document.getElementById('phoneBtn');
+    const watchBtn = document.getElementById('watchBtn');
+    const calcBtn = document.getElementById('calcBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const themeToggle = document.getElementById('themeToggle');
+
+    function money(n){
+      if (isNaN(n) || !isFinite(n)) return '$0.00';
+      return n.toLocaleString('en-US', { 
+        style:'currency', 
+        currency:'USD',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+    function round2(n){ 
+      if (isNaN(n)) return 0;
+      return Math.round((n + Number.EPSILON) * 100) / 100; 
+    }
+    function ceil2(n){ 
+      if (isNaN(n)) return 0;
+      return Math.ceil(n * 100) / 100; 
+    }
+
+    function showError(msg){
+      errorBox.style.display='block';
+      errorBox.textContent=msg;
+    }
+    function clearError(){
+      errorBox.style.display='none';
+      errorBox.textContent='';
+    }
+
+    function toggleTheme(){
+      const isDark = document.body.classList.toggle('dark-mode');
+      themeToggle.textContent = isDark ? '☀️' : '🌙';
+      try {
+        localStorage.setItem('dpc_theme', isDark ? 'dark' : 'light');
+      } catch(e){}
+    }
+
+    // Phone rule: Down = (Retail mod 24); if Down < 11 then Down += 24
+    function phoneDownPayment(retailWhole){
+      let down = ((retailWhole % TERM) + TERM) % TERM;
+      if (down < 11) down += TERM;
+      return down;
+    }
+
+    function setDeviceType(type){
+      currentDeviceType = type;
+      phoneBtn.classList.toggle('active', type === 'phone');
+      watchBtn.classList.toggle('active', type === 'watch');
+
+      retailHelp.textContent = (type === 'phone')
+        ? "Tip: For phones, retail is rounded to a whole dollar."
+        : "Tip: Watches can include cents. Monthly is rounded up to the nearest cent.";
+
+      try { localStorage.setItem('dpc_deviceType', type); } catch(e){}
+
+      // Clear results when switching device type
+      results.classList.remove('active');
+      clearError();
+    }
+
+    function calculate(userInitiated = false){
+      clearError();
+      roundingNoteDiv.style.display = 'none';
+      roundingNoteDiv.textContent = '';
+      if (userInitiated) {
+        copyBtn.textContent = "Copy Summary";
+      }
+
+      // Get and sanitize inputs
+      const retailInput = retailPriceInput.value.trim();
+      const taxInput = taxRateInput.value.trim();
+
+      // Better input validation
+      if (!retailInput || retailInput === '' || retailInput === '0') {
+        if (userInitiated) {
+          showError('Please enter a retail price.');
+          retailPriceInput.focus();
+        }
+        results.classList.remove('active');
+        return;
+      }
+
+      let retail = parseFloat(retailInput);
+      const taxRate = parseFloat(taxInput || '0');
+
+      if (isNaN(retail) || retail <= 0) {
+        showError('Please enter a valid retail price greater than $0.');
+        results.classList.remove('active');
+        retailPriceInput.focus();
+        return;
+      }
+
+      if (isNaN(taxRate) || !isFinite(taxRate) || taxRate < 0 || taxRate > 100){
+        showError('Tax rate must be between 0% and 100%.');
+        results.classList.remove('active');
+        taxRateInput.focus();
+        return;
+      }
+
+      try { localStorage.setItem('dpc_taxRate', taxRate.toFixed(2)); } catch(e){}
+
+      // Only round and update the input value if user explicitly calculated or on blur
+      // This prevents interference while typing
+      if (userInitiated){
+        if (currentDeviceType === 'phone'){
+          retail = Math.round(retail);
+          retailPriceInput.value = retail.toString();
+        } else {
+          retail = round2(retail);
+          retailPriceInput.value = retail.toFixed(2);
+        }
+      }
+
+      const tax = round2(retail * (taxRate / 100));
+      const payFullToday = round2(retail + tax);
+
+      let down = 0, balance = 0, monthlyDisplay = 0;
+
+      if (currentDeviceType === 'watch'){
+        down = 0;
+        balance = retail;
+
+        // Watch monthly: round UP to the next cent to match typical display.
+        monthlyDisplay = ceil2(balance / TERM);
+
+        const monthlyTotalShown = round2(monthlyDisplay * TERM);
+        const diff = round2(monthlyTotalShown - retail);
+        if (diff >= 0.01){
+          roundingNoteDiv.style.display = 'block';
+          roundingNoteDiv.innerHTML =
+            `Monthly is rounded up to the nearest cent. The last payment is adjusted by <b>${money(diff)}</b> so the total matches retail.`;
+        }
+        document.getElementById('downSub').textContent = "0";
+      } else {
+        down = phoneDownPayment(retail);
+        if (down > retail){
+          showError('Retail price is too small for the down-payment rule.');
+          results.classList.remove('active');
+          return;
+        }
+        balance = retail - down;
+        monthlyDisplay = balance / TERM;
+        document.getElementById('downSub').textContent = "Auto";
+      }
+
+      const dueToday = round2(down + tax);
+
+      document.getElementById('payFullToday').textContent = money(payFullToday);
+      document.getElementById('dueToday').textContent = money(dueToday);
+
+      document.getElementById('infoMonthly').textContent = money(monthlyDisplay);
+      document.getElementById('infoBalance').textContent = money(balance);
+      document.getElementById('infoDown').textContent = money(down);
+      document.getElementById('infoTax').textContent = money(tax);
+
+      results.classList.add('active');
+    }
+
+    function resetAll(){
+      retailPriceInput.value = "";
+      try {
+        const savedTax = localStorage.getItem('dpc_taxRate');
+        taxRateInput.value = savedTax ? savedTax : "8.90";
+      } catch(e){
+        taxRateInput.value = "8.90";
+      }
+      setDeviceType('phone');
+      results.classList.remove('active');
+      clearError();
+      roundingNoteDiv.style.display = 'none';
+      copyBtn.textContent = "Copy Summary";
+      copyBtn.style.background = '';
+      
+      // Focus retail price for next calculation
+      setTimeout(() => {
+        retailPriceInput.focus();
+      }, 100);
+    }
+
+    async function copySummary(){
+      // Recalculate to ensure we have current values
+      calculate(true);
+
+      let retail = parseFloat(retailPriceInput.value || '0');
+      const taxRate = parseFloat(taxRateInput.value || '0');
+      if (!retail || retail <= 0) {
+        showError('Please enter a retail price to copy summary.');
+        return;
+      }
+
+      if (currentDeviceType === 'phone') retail = Math.round(retail);
+      else retail = round2(retail);
+
+      const tax = round2(retail * (taxRate / 100));
+      const payFullToday = round2(retail + tax);
+
+      let down = 0, balance = 0, monthly = 0;
+      if (currentDeviceType === 'watch'){
+        down = 0;
+        balance = retail;
+        monthly = ceil2(balance / TERM);
+      } else {
+        down = phoneDownPayment(retail);
+        balance = retail - down;
+        monthly = balance / TERM;
+      }
+
+      const dueToday = round2(down + tax);
+
+      const text =
+`Device Payment Summary
+Type: ${currentDeviceType === 'watch' ? 'Watch' : 'Phone'}
+Retail: ${money(retail)}
+Tax rate: ${taxRate.toFixed(2)}%
+Sales tax: ${money(tax)}
+Pay in full today: ${money(payFullToday)}
+
+Monthly payment: ${money(monthly)} x 24
+Remaining balance: ${money(balance)}
+Down payment: ${money(down)}
+Due today (down + tax): ${money(dueToday)}`;
+
+      try{
+        await navigator.clipboard.writeText(text);
+        const originalText = copyBtn.textContent;
+        copyBtn.textContent = "✓ Copied!";
+        copyBtn.style.background = 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)';
+        setTimeout(() => {
+          copyBtn.textContent = originalText;
+          copyBtn.style.background = '';
+        }, 2000);
+      }catch(e){
+        // Fallback for older browsers or when clipboard API fails
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-9999px';
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          const originalText = copyBtn.textContent;
+          copyBtn.textContent = "✓ Copied!";
+          setTimeout(() => copyBtn.textContent = originalText, 2000);
+        } catch(err) {
+          showError('Copy failed. Please try again or use a different browser.');
+        }
+        document.body.removeChild(textArea);
+      }
+    }
+
+    // Event listeners using direct references instead of inline handlers
+    phoneBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      setDeviceType('phone');
+    });
+
+    watchBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      setDeviceType('watch');
+    });
+
+    calcBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      calculate(true);
+    });
+
+    copyBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      copySummary();
+    });
+
+    resetBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      resetAll();
+    });
+
+    themeToggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      toggleTheme();
+    });
+
+    // Calculate when user finishes typing (leaves the field or presses Enter)
+    retailPriceInput.addEventListener('blur', () => {
+      const rawValue = retailPriceInput.value.trim();
+      if (!rawValue || rawValue === '') return;
+      
+      let retail = parseFloat(rawValue);
+      
+      if (isNaN(retail) || retail <= 0) {
+        showError('Please enter a valid retail price.');
+        return;
+      }
+      
+      if (currentDeviceType === 'phone'){
+        retail = Math.round(retail);
+        retailPriceInput.value = retail.toString();
+      } else {
+        retail = round2(retail);
+        retailPriceInput.value = retail.toFixed(2);
+      }
+      calculate(false);
+    });
+
+    taxRateInput.addEventListener('blur', () => {
+      const rawValue = taxRateInput.value.trim();
+      if (!rawValue || rawValue === '') {
+        taxRateInput.value = '8.90';
+        return;
+      }
+      
+      const taxRate = parseFloat(rawValue);
+      
+      if (isNaN(taxRate) || taxRate < 0 || taxRate > 100) {
+        showError('Tax rate must be between 0% and 100%.');
+        taxRateInput.value = '8.90';
+        return;
+      }
+      
+      taxRateInput.value = taxRate.toFixed(2);
+      if (retailPriceInput.value.trim()) {
+        calculate(false);
+      }
+    });
+
+    // Handle Enter key for better navigation
+    retailPriceInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter'){ 
+        e.preventDefault(); 
+        retailPriceInput.blur();
+        taxRateInput.focus();
+      }
+    });
+
+    taxRateInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter'){ 
+        e.preventDefault(); 
+        taxRateInput.blur();
+        calculate(true);
+      }
+    });
+
+    // Prevent form submission if wrapped in a form
+    document.addEventListener('submit', (e) => {
+      e.preventDefault();
+      return false;
+    });
+
+    // Initialize on load
+    window.addEventListener('load', () => {
+      try{
+        // Load saved theme
+        const savedTheme = localStorage.getItem('dpc_theme');
+        if (savedTheme === 'dark') {
+          document.body.classList.add('dark-mode');
+          themeToggle.textContent = '☀️';
+        }
+
+        const savedTax = localStorage.getItem('dpc_taxRate');
+        if (savedTax) taxRateInput.value = savedTax;
+
+        const savedType = localStorage.getItem('dpc_deviceType');
+        if (savedType === 'watch' || savedType === 'phone') setDeviceType(savedType);
+      }catch(e){}
+
+      // Don't auto-focus on mobile to prevent unwanted keyboard popup
+      // Users can tap the field when ready
+    });
+  </script>
+</body>
+</html>
