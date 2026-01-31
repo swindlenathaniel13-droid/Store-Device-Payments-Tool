@@ -53,7 +53,7 @@
       -webkit-tap-highlight-color: transparent;
       transition: background 0.3s ease;
     }
-    .container{ max-width:760px; margin:0 auto; }
+    .container{ max-width:820px; margin:0 auto; }
     .header{
       text-align:center;
       color: var(--text-inverse);
@@ -329,7 +329,7 @@
     <div class="header">
       <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme">🌙</button>
       <h1>Device Payment Calculator</h1>
-      <p>Accessories: AARP/USAA = 30% off eligible accessories. Apple/Audio = no discount.</p>
+      <p>Accessories: AARP/USAA = 30% off eligible. Apple/Audio = no discount. Accessories are not financed.</p>
     </div>
 
     <div class="card">
@@ -359,12 +359,12 @@
       <div class="accessory-box">
         <div class="grid2">
           <div class="input-group" style="margin-bottom:0;">
-            <label class="label" for="accSubtotal">Accessory Price (Subtotal)</label>
+            <label class="label" for="accEligible">Eligible Accessories Subtotal</label>
             <div class="input-wrap">
               <span class="prefix" aria-hidden="true">$</span>
               <input
                 type="text"
-                id="accSubtotal"
+                id="accEligible"
                 placeholder="0"
                 inputmode="decimal"
                 autocomplete="off"
@@ -372,26 +372,37 @@
                 spellcheck="false"
               />
             </div>
-            <div class="help">Enter accessory subtotal (before discount).</div>
+            <div class="help">Discount applies ONLY to this box if AARP/USAA is checked.</div>
           </div>
 
           <div class="input-group" style="margin-bottom:0;">
-            <label class="label">Accessory Type</label>
-            <div class="checkrow">
-              <label><input type="checkbox" id="accAppleAudio" /> Apple or Audio (no discount)</label>
+            <label class="label" for="accNoDisc">No-Discount Subtotal (Apple/Audio)</label>
+            <div class="input-wrap">
+              <span class="prefix" aria-hidden="true">$</span>
+              <input
+                type="text"
+                id="accNoDisc"
+                placeholder="0"
+                inputmode="decimal"
+                autocomplete="off"
+                autocapitalize="off"
+                spellcheck="false"
+              />
             </div>
-            <div class="help">If checked, discount will not apply.</div>
+            <div class="help">Apple or audio accessories go here (no discount).</div>
           </div>
         </div>
 
         <div class="checkrow">
-          <label><input type="checkbox" id="aarpUsaa" /> AARP/USAA (30% off eligible accessories)</label>
-          <label><input type="checkbox" id="includeAccInTotals" checked /> Include accessories in today totals</label>
+          <label><input type="checkbox" id="aarpUsaa" /> AARP/USAA (30% off eligible)</label>
         </div>
 
+        <div class="checkrow" style="margin-top:10px;">
+          <label><input type="checkbox" id="addAccToDue" /> Add accessory total to <b>Due Today</b></label>
+          <label><input type="checkbox" id="addAccToFull" /> Add accessory total to <b>Pay in Full Today</b></label>
+        </div>
         <div class="help">
-          Accessories are <b>not financed</b>. Monthly payment is always device-only.
-          The toggle only controls whether accessories are included in the top “Due Today / Pay in Full” totals.
+          Accessories are never financed. These checkboxes only control whether the accessory due-today total gets added into those two top totals.
         </div>
       </div>
 
@@ -435,13 +446,13 @@
           <div class="mini-card">
             <div class="mini-title">Pay in Full Today</div>
             <div class="mini-value" id="payFullToday">$0.00</div>
-            <div class="mini-sub" id="payFullSub">Device + tax (or + accessories)</div>
+            <div class="mini-sub" id="payFullSub">Device + tax</div>
           </div>
 
           <div class="mini-card highlight">
             <div class="mini-title">Due Today</div>
             <div class="mini-value" id="dueToday">$0.00</div>
-            <div class="mini-sub" id="dueSub">Down + tax (or + accessories)</div>
+            <div class="mini-sub" id="dueSub">Down + device tax</div>
           </div>
         </div>
 
@@ -470,14 +481,14 @@
 
         <div class="cards" style="margin-bottom:6px;">
           <div class="mini-card">
-            <div class="mini-title">Accessory Total</div>
+            <div class="mini-title">Accessories Total</div>
             <div class="mini-value" id="accTotal">$0.00</div>
             <div class="mini-sub" id="accSub">After discount</div>
           </div>
           <div class="mini-card">
-            <div class="mini-title">Accessory Tax</div>
-            <div class="mini-value" id="accTax">$0.00</div>
-            <div class="mini-sub" id="accTaxSub">On accessories</div>
+            <div class="mini-title">Accessories Due Today</div>
+            <div class="mini-value" id="accDueToday">$0.00</div>
+            <div class="mini-sub" id="accDueSub">Includes accessory tax</div>
           </div>
         </div>
 
@@ -493,10 +504,11 @@
     let autoTimer = null;
 
     const retailPriceInput = document.getElementById('retailPrice');
-    const accSubtotalInput = document.getElementById('accSubtotal');
-    const accAppleAudioChk = document.getElementById('accAppleAudio');
+    const accEligibleInput = document.getElementById('accEligible');
+    const accNoDiscInput = document.getElementById('accNoDisc');
     const aarpUsaaChk = document.getElementById('aarpUsaa');
-    const includeAccInTotalsChk = document.getElementById('includeAccInTotals');
+    const addAccToDueChk = document.getElementById('addAccToDue');
+    const addAccToFullChk = document.getElementById('addAccToFull');
 
     const taxRateInput = document.getElementById('taxRate');
     const results = document.getElementById('results');
@@ -599,6 +611,7 @@
         return;
       }
 
+      // Normalize retail for calculation
       if (currentDeviceType === 'phone'){
         retail = Math.round(retail);
         if (userInitiated) retailPriceInput.value = retail.toString();
@@ -608,17 +621,20 @@
       }
 
       // Accessories
-      const accSubtotal = round2(parseMoney(accSubtotalInput));
-      const isAppleAudio = !!accAppleAudioChk.checked;
+      const eligibleSub = round2(parseMoney(accEligibleInput));
+      const noDiscSub = round2(parseMoney(accNoDiscInput));
       const aarp = !!aarpUsaaChk.checked;
 
-      const discountEligible = aarp && accSubtotal > 0 && !isAppleAudio;
-      const accDiscount = discountEligible ? round2(accSubtotal * DISCOUNT_RATE) : 0;
-      const accAfterDiscount = round2(accSubtotal - accDiscount);
+      const disc = (aarp && eligibleSub > 0) ? round2(eligibleSub * DISCOUNT_RATE) : 0;
+      const eligibleAfter = round2(eligibleSub - disc);
+      const accessoriesTotal = round2(eligibleAfter + noDiscSub);
 
       // Taxes
       const deviceTax = round2(retail * (taxRate / 100));
-      const accessoryTax = round2(accAfterDiscount * (taxRate / 100));
+      const accessoryTax = round2(accessoriesTotal * (taxRate / 100));
+
+      // Accessory due today is always accessories + accessory tax
+      const accessoriesDueToday = round2(accessoriesTotal + accessoryTax);
 
       // Device financing
       let down = 0, balance = 0, monthlyDisplay = 0;
@@ -648,52 +664,43 @@
         document.getElementById('downSub').textContent = "Auto";
       }
 
-      const includeAcc = !!includeAccInTotalsChk.checked;
-
       // Device-only totals
       const devicePayFull = round2(retail + deviceTax);
       const deviceDueToday = round2(down + deviceTax);
 
-      // Accessories due today (never financed)
-      const accDueToday = round2(accAfterDiscount + accessoryTax);
+      // Apply accessories into top totals based on the two checkboxes
+      const payFullToday = addAccToFullChk.checked ? round2(devicePayFull + accessoriesDueToday) : devicePayFull;
+      const dueToday = addAccToDueChk.checked ? round2(deviceDueToday + accessoriesDueToday) : deviceDueToday;
 
-      // Combined totals if toggle is ON
-      const payFullToday = includeAcc ? round2(devicePayFull + accDueToday) : devicePayFull;
-      const dueToday = includeAcc ? round2(deviceDueToday + accDueToday) : deviceDueToday;
-
-      // UI
+      // UI outputs
       document.getElementById('payFullToday').textContent = money(payFullToday);
       document.getElementById('dueToday').textContent = money(dueToday);
 
-      document.getElementById('payFullSub').textContent = includeAcc ? "Device + accessories + tax" : "Device + tax";
-      document.getElementById('dueSub').textContent = includeAcc ? "Down + tax + accessories" : "Down + device tax";
+      document.getElementById('payFullSub').textContent = addAccToFullChk.checked ? "Device + tax + accessories" : "Device + tax";
+      document.getElementById('dueSub').textContent = addAccToDueChk.checked ? "Down + device tax + accessories" : "Down + device tax";
 
       document.getElementById('infoMonthly').textContent = money(monthlyDisplay);
       document.getElementById('infoBalance').textContent = money(balance);
       document.getElementById('infoDown').textContent = money(down);
-
       document.getElementById('deviceTax').textContent = money(deviceTax);
-      document.getElementById('accTotal').textContent = money(accAfterDiscount);
-      document.getElementById('accTax').textContent = money(accessoryTax);
 
+      document.getElementById('accTotal').textContent = money(accessoriesTotal);
+      document.getElementById('accDueToday').textContent = money(accessoriesDueToday);
+
+      // Accessory subtitles (keep it rep-friendly)
       const accSub = document.getElementById('accSub');
-      const accTaxSub = document.getElementById('accTaxSub');
+      const accDueSub = document.getElementById('accDueSub');
 
-      if (accSubtotal <= 0){
+      if (eligibleSub === 0 && noDiscSub === 0){
         accSub.textContent = "No accessories";
-        accTaxSub.textContent = "On accessories";
-      } else if (discountEligible){
-        accSub.textContent = `30% off applied (−${money(accDiscount)}) • Due today: ${money(accDueToday)}`;
-        accTaxSub.textContent = `Due today: ${money(accDueToday)}`;
-      } else if (aarp && isAppleAudio){
-        accSub.textContent = `No discount (Apple/Audio) • Due today: ${money(accDueToday)}`;
-        accTaxSub.textContent = `Due today: ${money(accDueToday)}`;
-      } else if (aarp && !isAppleAudio){
-        accSub.textContent = `Discount not applied (unchecked?) • Due today: ${money(accDueToday)}`;
-        accTaxSub.textContent = `Due today: ${money(accDueToday)}`;
+        accDueSub.textContent = "Includes accessory tax";
       } else {
-        accSub.textContent = `Due today: ${money(accDueToday)}`;
-        accTaxSub.textContent = `Due today: ${money(accDueToday)}`;
+        const parts = [];
+        if (eligibleSub > 0) parts.push(`Eligible: ${money(eligibleAfter)}`);
+        if (noDiscSub > 0) parts.push(`No-discount: ${money(noDiscSub)}`);
+        if (disc > 0) parts.push(`Discount: −${money(disc)}`);
+        accSub.textContent = parts.join(" • ");
+        accDueSub.textContent = `Tax: ${money(accessoryTax)}`;
       }
 
       results.classList.add('active');
@@ -701,10 +708,11 @@
 
     function resetAll(){
       retailPriceInput.value = "";
-      accSubtotalInput.value = "";
-      accAppleAudioChk.checked = false;
+      accEligibleInput.value = "";
+      accNoDiscInput.value = "";
       aarpUsaaChk.checked = false;
-      includeAccInTotalsChk.checked = true;
+      addAccToDueChk.checked = false;
+      addAccToFullChk.checked = false;
 
       try {
         const savedTax = localStorage.getItem('dpc_taxRate');
@@ -731,18 +739,17 @@
       if (currentDeviceType === 'phone') retail = Math.round(retail);
       else retail = round2(retail);
 
-      const accSubtotal = round2(parseMoney(accSubtotalInput));
-      const isAppleAudio = !!accAppleAudioChk.checked;
+      const eligibleSub = round2(parseMoney(accEligibleInput));
+      const noDiscSub = round2(parseMoney(accNoDiscInput));
       const aarp = !!aarpUsaaChk.checked;
-      const includeAcc = !!includeAccInTotalsChk.checked;
 
-      const discountEligible = aarp && accSubtotal > 0 && !isAppleAudio;
-      const accDiscount = discountEligible ? round2(accSubtotal * DISCOUNT_RATE) : 0;
-      const accAfterDiscount = round2(accSubtotal - accDiscount);
+      const disc = (aarp && eligibleSub > 0) ? round2(eligibleSub * DISCOUNT_RATE) : 0;
+      const eligibleAfter = round2(eligibleSub - disc);
+      const accessoriesTotal = round2(eligibleAfter + noDiscSub);
 
       const deviceTax = round2(retail * (taxRate / 100));
-      const accessoryTax = round2(accAfterDiscount * (taxRate / 100));
-      const accDueToday = round2(accAfterDiscount + accessoryTax);
+      const accessoryTax = round2(accessoriesTotal * (taxRate / 100));
+      const accessoriesDueToday = round2(accessoriesTotal + accessoryTax);
 
       let down = 0, balance = 0, monthly = 0;
       if (currentDeviceType === 'watch'){
@@ -758,8 +765,8 @@
       const devicePayFull = round2(retail + deviceTax);
       const deviceDueToday = round2(down + deviceTax);
 
-      const payFullToday = includeAcc ? round2(devicePayFull + accDueToday) : devicePayFull;
-      const dueToday = includeAcc ? round2(deviceDueToday + accDueToday) : deviceDueToday;
+      const payFullToday = addAccToFullChk.checked ? round2(devicePayFull + accessoriesDueToday) : devicePayFull;
+      const dueToday = addAccToDueChk.checked ? round2(deviceDueToday + accessoriesDueToday) : deviceDueToday;
 
       const text =
 `Device + Accessories Summary
@@ -768,15 +775,17 @@ Retail: ${money(retail)}
 Tax rate: ${taxRate.toFixed(2)}%
 Device tax: ${money(deviceTax)}
 
-Accessories subtotal: ${money(accSubtotal)}
-Apple/Audio accessory: ${isAppleAudio ? 'Yes' : 'No'}
+Eligible accessories subtotal: ${money(eligibleSub)}
+No-discount accessories subtotal: ${money(noDiscSub)}
 AARP/USAA: ${aarp ? 'Yes (30% eligible)' : 'No'}
-Accessory discount: ${money(accDiscount)}
-Accessory total (after discount): ${money(accAfterDiscount)}
+Accessory discount: ${money(disc)}
+Accessories total (after discount): ${money(accessoriesTotal)}
 Accessory tax: ${money(accessoryTax)}
-Accessories due today: ${money(accDueToday)}
+Accessories due today: ${money(accessoriesDueToday)}
 
-Include accessories in totals: ${includeAcc ? 'Yes' : 'No'}
+Add accessories to Due Today: ${addAccToDueChk.checked ? 'Yes' : 'No'}
+Add accessories to Pay in Full: ${addAccToFullChk.checked ? 'Yes' : 'No'}
+
 Pay in full today: ${money(payFullToday)}
 Due today: ${money(dueToday)}
 
@@ -803,6 +812,7 @@ Down payment: ${money(down)}`;
       }
     }
 
+    // Events
     phoneBtn.addEventListener('click', (e) => { e.preventDefault(); setDeviceType('phone'); });
     watchBtn.addEventListener('click', (e) => { e.preventDefault(); setDeviceType('watch'); });
     calcBtn.addEventListener('click', (e) => { e.preventDefault(); calculate(true); });
@@ -810,11 +820,12 @@ Down payment: ${money(down)}`;
     resetBtn.addEventListener('click', (e) => { e.preventDefault(); resetAll(); });
     themeToggle.addEventListener('click', (e) => { e.preventDefault(); toggleTheme(); });
 
-    [retailPriceInput, accSubtotalInput].forEach(el => {
+    // Auto-calc while typing
+    [retailPriceInput, accEligibleInput, accNoDiscInput].forEach(el => {
       el.addEventListener('input', () => { sanitizeMoneyInput(el); scheduleAutoCalc(); });
       el.addEventListener('blur', () => calculate(false));
     });
-    [taxRateInput, aarpUsaaChk, accAppleAudioChk, includeAccInTotalsChk].forEach(el => {
+    [taxRateInput, aarpUsaaChk, addAccToDueChk, addAccToFullChk].forEach(el => {
       el.addEventListener('input', scheduleAutoCalc);
       el.addEventListener('change', scheduleAutoCalc);
       el.addEventListener('blur', () => calculate(false));
