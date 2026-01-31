@@ -6,7 +6,7 @@
   <title>Device Payment Calculator</title>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
-    
+
     :root {
       --bg-gradient-start: #ff6b35;
       --bg-gradient-end: #f7931e;
@@ -25,7 +25,7 @@
       --highlight-bg: rgba(255,107,53,.05);
       --highlight-bg-end: rgba(247,147,30,.05);
     }
-    
+
     body.dark-mode {
       --bg-gradient-start: #1a1a2e;
       --bg-gradient-end: #16213e;
@@ -44,7 +44,7 @@
       --highlight-bg: rgba(255,107,53,.15);
       --highlight-bg-end: rgba(247,147,30,.15);
     }
-    
+
     body{
       font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
       background:linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
@@ -53,16 +53,16 @@
       -webkit-tap-highlight-color: transparent;
       transition: background 0.3s ease;
     }
-    .container{ max-width:660px; margin:0 auto; }
-    .header{ 
-      text-align:center; 
-      color: var(--text-inverse); 
+    .container{ max-width:760px; margin:0 auto; }
+    .header{
+      text-align:center;
+      color: var(--text-inverse);
       margin:6px 0 10px;
       position: relative;
     }
     .header h1{ font-size:22px; font-weight:900; text-shadow:0 2px 4px rgba(0,0,0,.12); }
     .header p{ font-size:12px; opacity:.92; margin-top:4px; }
-    
+
     .theme-toggle{
       position: absolute;
       top: 0;
@@ -76,13 +76,9 @@
       transition: all 0.3s ease;
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
+      min-height: 40px;
     }
-    .theme-toggle:hover{
-      background: rgba(255,255,255,0.3);
-    }
-    .theme-toggle:active{
-      transform: scale(0.95);
-    }
+    .theme-toggle:active{ transform: scale(0.95); }
 
     .card{
       background: var(--card-bg);
@@ -110,10 +106,9 @@
       transition: all 0.2s ease;
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
+      min-height: 48px;
     }
-    .toggle-btn:active{
-      transform: scale(0.98);
-    }
+    .toggle-btn:active{ transform: scale(0.98); }
     .toggle-btn.active{
       border-color: var(--border-active);
       background:linear-gradient(135deg, var(--btn-gradient-start) 0%, var(--btn-gradient-end) 100%);
@@ -134,33 +129,6 @@
       color: var(--text-primary);
       margin-bottom:6px;
     }
-    
-    .tax-quick-buttons{
-      display: flex;
-      gap: 6px;
-      margin-bottom: 8px;
-    }
-    .tax-btn{
-      flex: 1;
-      padding: 8px;
-      border-radius: 8px;
-      border: 2px solid var(--border-color);
-      background: var(--pill-bg);
-      color: var(--text-primary);
-      font-weight: 900;
-      font-size: 12px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
-    }
-    .tax-btn:active{
-      transform: scale(0.95);
-      border-color: var(--border-active);
-      background: linear-gradient(135deg, var(--btn-gradient-start) 0%, var(--btn-gradient-end) 100%);
-      color: var(--text-inverse);
-    }
-    
     .help{
       font-size:11px;
       color: var(--text-secondary);
@@ -179,7 +147,8 @@
       pointer-events:none;
       z-index: 1;
     }
-    input[type="number"]{
+
+    input[type="text"], input[type="number"], select{
       width:100%;
       padding:12px 12px 12px 34px;
       font-size:16px;
@@ -189,29 +158,15 @@
       outline:none;
       background: var(--card-bg);
       color: var(--text-primary);
-      -webkit-appearance: none;
-      -moz-appearance: textfield;
       appearance: none;
       transition: all 0.2s ease;
+      min-height: 48px;
     }
-    input[type="number"]:focus{
+    select{ padding-left:12px; }
+
+    input:focus, select:focus{
       border-color: var(--border-active);
       box-shadow:0 0 0 4px rgba(255,107,53,.12);
-    }
-    input[type="number"]::placeholder {
-      color: var(--text-secondary);
-      opacity: 0.5;
-    }
-    
-    input[type="number"]:focus::placeholder {
-      opacity: 0.3;
-    }
-
-    input[type="number"]::-webkit-inner-spin-button,
-    input[type="number"]::-webkit-outer-spin-button{ 
-      -webkit-appearance:none; 
-      margin:0; 
-      display: none;
     }
 
     .pill{
@@ -224,6 +179,8 @@
       font-size:14px;
       color: var(--text-primary);
       transition: all 0.3s ease;
+      min-height: 48px;
+      line-height: 24px;
     }
 
     .btnrow{
@@ -240,6 +197,7 @@
       transition:transform .1s, box-shadow .1s, opacity .1s;
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
+      min-height: 48px;
     }
     button:active{ transform:translateY(1px); }
 
@@ -252,7 +210,6 @@
       background:linear-gradient(135deg, var(--btn-gradient-start) 0%, var(--btn-gradient-end) 100%);
       color: var(--text-inverse);
       box-shadow:0 4px 14px rgba(255,107,53,.28);
-      min-height: 48px;
     }
     .btn.secondary{
       background: var(--card-bg);
@@ -260,7 +217,6 @@
       border:2px solid var(--border-active);
       box-shadow:none;
     }
-    .btn.secondary:hover{ box-shadow:0 2px 12px rgba(255,107,53,.16); }
 
     .error{
       display:none;
@@ -277,20 +233,14 @@
     }
 
     .results{ display:none; margin-top:12px; }
-    .results.active{ 
-      display:block; 
+    .results.active{
+      display:block;
       animation: slideIn 0.3s ease-out;
     }
 
     @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .section-title{
@@ -351,6 +301,32 @@
       line-height:1.35;
     }
     .note b{ font-weight:900; }
+
+    .accessory-box{
+      border:2px dashed var(--border-color);
+      border-radius:14px;
+      padding:12px;
+      margin-top:8px;
+    }
+    .checkrow{
+      display:flex;
+      gap:14px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-top:6px;
+    }
+    .checkrow label{
+      font-size:12px;
+      font-weight:800;
+      color: var(--text-primary);
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+
+    @media (max-width:420px){
+      .cards{ grid-template-columns:1fr; }
+    }
   </style>
 </head>
 <body>
@@ -358,7 +334,7 @@
     <div class="header">
       <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme">🌙</button>
       <h1>Device Payment Calculator</h1>
-      <p>Quick calculations for customer quotes</p>
+      <p>Includes accessory totals and a 30% AARP/USAA accessory discount (excludes Apple/Audio).</p>
     </div>
 
     <div class="card">
@@ -371,43 +347,72 @@
         <label class="label" for="retailPrice">Retail Price</label>
         <div class="input-wrap">
           <span class="prefix" aria-hidden="true">$</span>
-          <input 
-            type="number" 
-            id="retailPrice" 
-            placeholder="0" 
-            step="0.01" 
-            min="0" 
+          <input
+            type="text"
+            id="retailPrice"
+            placeholder="0"
             inputmode="decimal"
-            aria-label="Retail price in dollars"
+            autocomplete="off"
+            autocapitalize="off"
+            spellcheck="false"
             aria-describedby="retailHelp"
           />
         </div>
         <div class="help" id="retailHelp">Tip: For phones, retail is rounded to a whole dollar.</div>
       </div>
 
-      <div class="grid2">
+      <div class="accessory-box">
+        <div class="grid2">
+          <div class="input-group" style="margin-bottom:0;">
+            <label class="label" for="accPrice">Accessory Price (Subtotal)</label>
+            <div class="input-wrap">
+              <span class="prefix" aria-hidden="true">$</span>
+              <input
+                type="text"
+                id="accPrice"
+                placeholder="0"
+                inputmode="decimal"
+                autocomplete="off"
+                autocapitalize="off"
+                spellcheck="false"
+              />
+            </div>
+            <div class="help">Enter accessory subtotal (before discount).</div>
+          </div>
+
+          <div class="input-group" style="margin-bottom:0;">
+            <label class="label" for="accType">Accessory Category</label>
+            <select id="accType">
+              <option value="eligible" selected>Eligible (most accessories)</option>
+              <option value="apple">Apple accessory (no discount)</option>
+              <option value="audio">Audio accessory (no discount)</option>
+            </select>
+            <div class="help">Apple/Audio accessories do NOT get the 30% discount.</div>
+          </div>
+        </div>
+
+        <div class="checkrow">
+          <label><input type="checkbox" id="aarpUsaa" /> AARP/USAA (30% off eligible accessories)</label>
+        </div>
+      </div>
+
+      <div class="grid2" style="margin-top:10px;">
         <div class="input-group">
           <label class="label" for="taxRate">Tax Rate (%)</label>
-          <div class="tax-quick-buttons">
-            <button class="tax-btn" type="button" data-rate="7.5">7.5%</button>
-            <button class="tax-btn" type="button" data-rate="8.9">8.9%</button>
-            <button class="tax-btn" type="button" data-rate="10.0">10%</button>
-          </div>
           <div class="input-wrap">
             <span class="prefix" aria-hidden="true">%</span>
-            <input 
-              type="number" 
-              id="taxRate" 
-              value="8.9" 
-              step="0.01" 
-              min="0" 
-              max="100" 
+            <input
+              type="number"
+              id="taxRate"
+              value="8.9"
+              step="0.01"
+              min="0"
+              max="100"
               inputmode="decimal"
-              aria-label="Tax rate percentage"
               aria-describedby="taxHelp"
             />
           </div>
-          <div class="help" id="taxHelp">Tap a rate or enter custom.</div>
+          <div class="help" id="taxHelp">Enter your local tax rate (example: <b>8.9</b>).</div>
         </div>
 
         <div class="input-group">
@@ -420,7 +425,7 @@
       <div class="btnrow">
         <button class="btn" type="button" id="calcBtn">Calculate</button>
         <button class="btn secondary" id="copyBtn" type="button">Copy Summary</button>
-        <button class="btn secondary" type="button" id="newCalcBtn">New Calculation</button>
+        <button class="btn secondary" type="button" id="resetBtn">Reset</button>
       </div>
 
       <div class="error" id="errorBox"></div>
@@ -432,13 +437,13 @@
           <div class="mini-card">
             <div class="mini-title">Pay in Full Today</div>
             <div class="mini-value" id="payFullToday">$0.00</div>
-            <div class="mini-sub">Retail + tax</div>
+            <div class="mini-sub">Device + accessories + tax</div>
           </div>
 
           <div class="mini-card highlight">
             <div class="mini-title">Due Today</div>
             <div class="mini-value" id="dueToday">$0.00</div>
-            <div class="mini-sub">Down + tax</div>
+            <div class="mini-sub">Down + tax + accessories</div>
           </div>
         </div>
 
@@ -451,7 +456,7 @@
           <div class="mini-card">
             <div class="mini-title">Remaining Balance</div>
             <div class="mini-value" id="infoBalance">$0.00</div>
-            <div class="mini-sub">After down</div>
+            <div class="mini-sub">Device only</div>
           </div>
           <div class="mini-card">
             <div class="mini-title">Down Payment</div>
@@ -459,9 +464,22 @@
             <div class="mini-sub" id="downSub">Auto</div>
           </div>
           <div class="mini-card">
-            <div class="mini-title">Sales Tax</div>
-            <div class="mini-value" id="infoTax">$0.00</div>
-            <div class="mini-sub">On retail</div>
+            <div class="mini-title">Device Tax</div>
+            <div class="mini-value" id="deviceTax">$0.00</div>
+            <div class="mini-sub">On device</div>
+          </div>
+        </div>
+
+        <div class="cards" style="margin-bottom:6px;">
+          <div class="mini-card">
+            <div class="mini-title">Accessory Total</div>
+            <div class="mini-value" id="accTotal">$0.00</div>
+            <div class="mini-sub" id="accSub">After discount</div>
+          </div>
+          <div class="mini-card">
+            <div class="mini-title">Accessory Tax</div>
+            <div class="mini-value" id="accTax">$0.00</div>
+            <div class="mini-sub">On accessories</div>
           </div>
         </div>
 
@@ -472,10 +490,15 @@
 
   <script>
     const TERM = 24;
+    const DISCOUNT_RATE = 0.30; // 30%
     let currentDeviceType = 'phone';
-    let autoClearEnabled = true; // Auto-clear after copy for next customer
+    let autoTimer = null;
 
     const retailPriceInput = document.getElementById('retailPrice');
+    const accPriceInput = document.getElementById('accPrice');
+    const accTypeSelect = document.getElementById('accType');
+    const aarpUsaaChk = document.getElementById('aarpUsaa');
+
     const taxRateInput = document.getElementById('taxRate');
     const results = document.getElementById('results');
     const errorBox = document.getElementById('errorBox');
@@ -485,52 +508,31 @@
     const phoneBtn = document.getElementById('phoneBtn');
     const watchBtn = document.getElementById('watchBtn');
     const calcBtn = document.getElementById('calcBtn');
-    const newCalcBtn = document.getElementById('newCalcBtn');
+    const resetBtn = document.getElementById('resetBtn');
     const themeToggle = document.getElementById('themeToggle');
-
-    // Haptic feedback for mobile (vibration)
-    function vibrate(pattern = 10) {
-      if ('vibrate' in navigator) {
-        navigator.vibrate(pattern);
-      }
-    }
 
     function money(n){
       if (isNaN(n) || !isFinite(n)) return '$0.00';
-      return n.toLocaleString('en-US', { 
-        style:'currency', 
+      return n.toLocaleString('en-US', {
+        style:'currency',
         currency:'USD',
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
       });
     }
-    function round2(n){ 
-      if (isNaN(n)) return 0;
-      return Math.round((n + Number.EPSILON) * 100) / 100; 
-    }
-    function ceil2(n){ 
-      if (isNaN(n)) return 0;
-      return Math.ceil(n * 100) / 100; 
-    }
+    function round2(n){ if (isNaN(n)) return 0; return Math.round((n + Number.EPSILON) * 100) / 100; }
+    function ceil2(n){ if (isNaN(n)) return 0; return Math.ceil(n * 100) / 100; }
 
-    function showError(msg){
-      errorBox.style.display='block';
-      errorBox.textContent=msg;
-    }
-    function clearError(){
-      errorBox.style.display='none';
-      errorBox.textContent='';
-    }
+    function showError(msg){ errorBox.style.display='block'; errorBox.textContent=msg; }
+    function clearError(){ errorBox.style.display='none'; errorBox.textContent=''; }
 
     function toggleTheme(){
       const isDark = document.body.classList.toggle('dark-mode');
       themeToggle.textContent = isDark ? '☀️' : '🌙';
-      try {
-        localStorage.setItem('dpc_theme', isDark ? 'dark' : 'light');
-      } catch(e){}
+      try { localStorage.setItem('dpc_theme', isDark ? 'dark' : 'light'); } catch(e){}
     }
 
-    // Phone rule: Down = (Retail mod 24); if Down < 11 then Down += 24
+    // Phone down rule
     function phoneDownPayment(retailWhole){
       let down = ((retailWhole % TERM) + TERM) % TERM;
       if (down < 11) down += TERM;
@@ -547,68 +549,87 @@
         : "Tip: Watches can include cents. Monthly is rounded up to the nearest cent.";
 
       try { localStorage.setItem('dpc_deviceType', type); } catch(e){}
+      scheduleAutoCalc();
+    }
 
-      // Clear results when switching device type
-      results.classList.remove('active');
-      clearError();
+    // Sanitize money input while typing (digits + one dot)
+    function sanitizeMoneyInput(inputEl){
+      const raw = inputEl.value;
+      let cleaned = raw.replace(/[^0-9.]/g, '');
+      const firstDot = cleaned.indexOf('.');
+      if (firstDot !== -1){
+        cleaned = cleaned.slice(0, firstDot + 1) + cleaned.slice(firstDot + 1).replace(/\./g, '');
+      }
+      if (cleaned !== raw){
+        const pos = inputEl.selectionStart || cleaned.length;
+        inputEl.value = cleaned;
+        try { inputEl.setSelectionRange(pos, pos); } catch(e){}
+      }
+    }
+
+    function parseMoney(inputEl){
+      const v = (inputEl.value || '').trim();
+      const n = parseFloat(v);
+      return (isFinite(n) ? n : 0);
+    }
+
+    function scheduleAutoCalc(){
+      if (autoTimer) clearTimeout(autoTimer);
+      autoTimer = setTimeout(() => {
+        if (retailPriceInput.value.trim()) calculate(false);
+      }, 250);
     }
 
     function calculate(userInitiated = false){
       clearError();
       roundingNoteDiv.style.display = 'none';
       roundingNoteDiv.textContent = '';
-      if (userInitiated) {
-        copyBtn.textContent = "Copy Summary";
-        copyBtn.style.background = '';
-      }
+      if (userInitiated) copyBtn.textContent = "Copy Summary";
 
-      // Get and sanitize inputs
       const retailInput = retailPriceInput.value.trim();
-      const taxInput = taxRateInput.value.trim();
-
-      // Better input validation
-      if (!retailInput || retailInput === '' || retailInput === '0') {
-        if (userInitiated) {
-          showError('Please enter a retail price.');
-          retailPriceInput.focus();
-        }
+      if (!retailInput){
+        if (userInitiated) { showError('Please enter a retail price.'); retailPriceInput.focus(); }
         results.classList.remove('active');
         return;
       }
 
-      let retail = parseFloat(retailInput);
-      const taxRate = parseFloat(taxInput || '0');
+      let retail = parseMoney(retailPriceInput);
+      const taxRate = parseFloat(taxRateInput.value || '0');
 
-      if (isNaN(retail) || retail <= 0) {
+      if (!isFinite(retail) || retail <= 0){
         showError('Please enter a valid retail price greater than $0.');
         results.classList.remove('active');
-        retailPriceInput.focus();
         return;
       }
-
-      if (isNaN(taxRate) || !isFinite(taxRate) || taxRate < 0 || taxRate > 100){
+      if (!isFinite(taxRate) || taxRate < 0 || taxRate > 100){
         showError('Tax rate must be between 0% and 100%.');
         results.classList.remove('active');
-        taxRateInput.focus();
         return;
       }
 
-      try { localStorage.setItem('dpc_taxRate', taxRate.toFixed(2)); } catch(e){}
-
-      // Only round and update the input value if user explicitly calculated or on blur
-      if (userInitiated){
-        if (currentDeviceType === 'phone'){
-          retail = Math.round(retail);
-          retailPriceInput.value = retail.toString();
-        } else {
-          retail = round2(retail);
-          retailPriceInput.value = retail.toFixed(2);
-        }
+      // Normalize retail for calculation
+      if (currentDeviceType === 'phone'){
+        retail = Math.round(retail);
+        if (userInitiated) retailPriceInput.value = retail.toString();
+      } else {
+        retail = round2(retail);
+        if (userInitiated) retailPriceInput.value = retail.toFixed(2);
       }
 
-      const tax = round2(retail * (taxRate / 100));
-      const payFullToday = round2(retail + tax);
+      // Accessories
+      const accSubtotal = round2(parseMoney(accPriceInput));
+      const accType = accTypeSelect.value; // eligible / apple / audio
+      const aarp = !!aarpUsaaChk.checked;
 
+      const discountEligible = aarp && accSubtotal > 0 && (accType === 'eligible');
+      const accDiscount = discountEligible ? round2(accSubtotal * DISCOUNT_RATE) : 0;
+      const accAfterDiscount = round2(accSubtotal - accDiscount);
+
+      // Taxes
+      const deviceTax = round2(retail * (taxRate / 100));
+      const accessoryTax = round2(accAfterDiscount * (taxRate / 100));
+
+      // Device financing math
       let down = 0, balance = 0, monthlyDisplay = 0;
 
       if (currentDeviceType === 'watch'){
@@ -636,56 +657,72 @@
         document.getElementById('downSub').textContent = "Auto";
       }
 
-      const dueToday = round2(down + tax);
+      // Totals
+      const payFullToday = round2(retail + accAfterDiscount + deviceTax + accessoryTax);
+      const dueToday = round2(down + deviceTax + accAfterDiscount + accessoryTax);
 
+      // UI outputs
       document.getElementById('payFullToday').textContent = money(payFullToday);
       document.getElementById('dueToday').textContent = money(dueToday);
+
       document.getElementById('infoMonthly').textContent = money(monthlyDisplay);
       document.getElementById('infoBalance').textContent = money(balance);
       document.getElementById('infoDown').textContent = money(down);
-      document.getElementById('infoTax').textContent = money(tax);
+
+      document.getElementById('deviceTax').textContent = money(deviceTax);
+      document.getElementById('accTotal').textContent = money(accAfterDiscount);
+      document.getElementById('accTax').textContent = money(accessoryTax);
+
+      const accSub = document.getElementById('accSub');
+      if (accSubtotal <= 0) accSub.textContent = "No accessories";
+      else if (discountEligible) accSub.textContent = `30% off applied (−${money(accDiscount)})`;
+      else if (aarp && accType !== 'eligible') accSub.textContent = "Not eligible for discount";
+      else if (aarp && accType === 'eligible') accSub.textContent = "Discount off (unchecked)";
+      else accSub.textContent = "After discount";
 
       results.classList.add('active');
-      
-      // Haptic feedback on successful calculation
-      if (userInitiated) {
-        vibrate(10);
-      }
     }
 
-    function newCalculation(){
+    function resetAll(){
       retailPriceInput.value = "";
+      accPriceInput.value = "";
+      accTypeSelect.value = "eligible";
+      aarpUsaaChk.checked = false;
+
+      try {
+        const savedTax = localStorage.getItem('dpc_taxRate');
+        taxRateInput.value = savedTax ? savedTax : "8.90";
+      } catch(e){
+        taxRateInput.value = "8.90";
+      }
+
+      setDeviceType('phone');
       results.classList.remove('active');
       clearError();
       roundingNoteDiv.style.display = 'none';
       copyBtn.textContent = "Copy Summary";
-      copyBtn.style.background = '';
-      
-      // Haptic feedback
-      vibrate(10);
-      
-      // Focus retail price for next calculation
-      setTimeout(() => {
-        retailPriceInput.focus();
-      }, 100);
+      setTimeout(() => retailPriceInput.focus(), 50);
     }
 
     async function copySummary(){
-      // Recalculate to ensure we have current values
       calculate(true);
 
-      let retail = parseFloat(retailPriceInput.value || '0');
+      let retail = parseMoney(retailPriceInput);
       const taxRate = parseFloat(taxRateInput.value || '0');
-      if (!retail || retail <= 0) {
-        showError('Please enter a retail price to copy summary.');
-        return;
-      }
+      if (!retail || retail <= 0) { showError('Enter a retail price to copy summary.'); return; }
 
       if (currentDeviceType === 'phone') retail = Math.round(retail);
       else retail = round2(retail);
 
-      const tax = round2(retail * (taxRate / 100));
-      const payFullToday = round2(retail + tax);
+      const accSubtotal = round2(parseMoney(accPriceInput));
+      const accType = accTypeSelect.value;
+      const aarp = !!aarpUsaaChk.checked;
+      const discountEligible = aarp && accSubtotal > 0 && (accType === 'eligible');
+      const accDiscount = discountEligible ? round2(accSubtotal * DISCOUNT_RATE) : 0;
+      const accAfterDiscount = round2(accSubtotal - accDiscount);
+
+      const deviceTax = round2(retail * (taxRate / 100));
+      const accessoryTax = round2(accAfterDiscount * (taxRate / 100));
 
       let down = 0, balance = 0, monthly = 0;
       if (currentDeviceType === 'watch'){
@@ -698,199 +735,75 @@
         monthly = balance / TERM;
       }
 
-      const dueToday = round2(down + tax);
+      const payFullToday = round2(retail + accAfterDiscount + deviceTax + accessoryTax);
+      const dueToday = round2(down + deviceTax + accAfterDiscount + accessoryTax);
+
+      const accTypeLabel = (accType === 'eligible') ? 'Eligible' : (accType === 'apple' ? 'Apple' : 'Audio');
 
       const text =
-`Device Payment Summary
+`Device + Accessories Summary
 Type: ${currentDeviceType === 'watch' ? 'Watch' : 'Phone'}
 Retail: ${money(retail)}
 Tax rate: ${taxRate.toFixed(2)}%
-Sales tax: ${money(tax)}
+
+Accessories subtotal: ${money(accSubtotal)}
+Accessory category: ${accTypeLabel}
+AARP/USAA: ${aarp ? 'Yes' : 'No'}
+Accessory discount: ${money(accDiscount)}
+Accessory total (after discount): ${money(accAfterDiscount)}
+Accessory tax: ${money(accessoryTax)}
+
+Device tax: ${money(deviceTax)}
 Pay in full today: ${money(payFullToday)}
 
-Monthly payment: ${money(monthly)} x 24
-Remaining balance: ${money(balance)}
+Monthly payment (device only): ${money(monthly)} x 24
+Remaining balance (device only): ${money(balance)}
 Down payment: ${money(down)}
-Due today (down + tax): ${money(dueToday)}`;
+Due today (down + tax + accessories): ${money(dueToday)}`;
 
       try{
         await navigator.clipboard.writeText(text);
+        const originalText = copyBtn.textContent;
         copyBtn.textContent = "✓ Copied!";
-        copyBtn.style.background = 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)';
-        
-        // Haptic feedback on successful copy
-        vibrate([10, 50, 10]);
-        
-        // Auto-clear for next customer after 2 seconds
-        setTimeout(() => {
-          if (autoClearEnabled) {
-            newCalculation();
-          } else {
-            copyBtn.textContent = "Copy Summary";
-            copyBtn.style.background = '';
-          }
-        }, 2000);
+        setTimeout(() => copyBtn.textContent = originalText, 1600);
       }catch(e){
-        // Fallback for older browsers
-        const textArea = document.createElement('textarea');
-        textArea.value = text;
-        textArea.style.position = 'fixed';
-        textArea.style.left = '-9999px';
-        document.body.appendChild(textArea);
-        textArea.select();
-        try {
-          document.execCommand('copy');
-          copyBtn.textContent = "✓ Copied!";
-          vibrate([10, 50, 10]);
-          setTimeout(() => {
-            if (autoClearEnabled) {
-              newCalculation();
-            } else {
-              copyBtn.textContent = "Copy Summary";
-            }
-          }, 2000);
-        } catch(err) {
-          showError('Copy failed. Please try again or use a different browser.');
-        }
-        document.body.removeChild(textArea);
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); copyBtn.textContent = "✓ Copied!"; }
+        catch(err) { showError('Copy failed.'); }
+        document.body.removeChild(ta);
+        setTimeout(() => copyBtn.textContent = "Copy Summary", 1600);
       }
     }
 
-    // Event listeners
-    phoneBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      setDeviceType('phone');
+    // Events
+    phoneBtn.addEventListener('click', (e) => { e.preventDefault(); setDeviceType('phone'); });
+    watchBtn.addEventListener('click', (e) => { e.preventDefault(); setDeviceType('watch'); });
+    calcBtn.addEventListener('click', (e) => { e.preventDefault(); calculate(true); });
+    copyBtn.addEventListener('click', (e) => { e.preventDefault(); copySummary(); });
+    resetBtn.addEventListener('click', (e) => { e.preventDefault(); resetAll(); });
+    themeToggle.addEventListener('click', (e) => { e.preventDefault(); toggleTheme(); });
+
+    // Mobile-friendly typing + auto-calc
+    [retailPriceInput, accPriceInput].forEach(el => {
+      el.addEventListener('input', () => { sanitizeMoneyInput(el); scheduleAutoCalc(); });
+      el.addEventListener('blur', () => calculate(false));
+    });
+    [taxRateInput, accTypeSelect, aarpUsaaChk].forEach(el => {
+      el.addEventListener('input', scheduleAutoCalc);
+      el.addEventListener('change', scheduleAutoCalc);
     });
 
-    watchBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      setDeviceType('watch');
-    });
-
-    calcBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      calculate(true);
-    });
-
-    copyBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      copySummary();
-    });
-
-    newCalcBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      newCalculation();
-    });
-
-    themeToggle.addEventListener('click', (e) => {
-      e.preventDefault();
-      toggleTheme();
-    });
-
-    // Tax rate quick buttons
-    document.querySelectorAll('.tax-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        const rate = btn.getAttribute('data-rate');
-        taxRateInput.value = rate;
-        vibrate(10);
-        if (retailPriceInput.value.trim()) {
-          calculate(false);
-        }
-      });
-    });
-
-    // Calculate when user finishes typing (leaves the field)
-    retailPriceInput.addEventListener('blur', () => {
-      const rawValue = retailPriceInput.value.trim();
-      if (!rawValue || rawValue === '') return;
-      
-      let retail = parseFloat(rawValue);
-      
-      if (isNaN(retail) || retail <= 0) {
-        showError('Please enter a valid retail price.');
-        return;
-      }
-      
-      if (currentDeviceType === 'phone'){
-        retail = Math.round(retail);
-        retailPriceInput.value = retail.toString();
-      } else {
-        retail = round2(retail);
-        retailPriceInput.value = retail.toFixed(2);
-      }
-      calculate(false);
-    });
-
-    taxRateInput.addEventListener('blur', () => {
-      const rawValue = taxRateInput.value.trim();
-      if (!rawValue || rawValue === '') {
-        taxRateInput.value = '8.90';
-        return;
-      }
-      
-      const taxRate = parseFloat(rawValue);
-      
-      if (isNaN(taxRate) || taxRate < 0 || taxRate > 100) {
-        showError('Tax rate must be between 0% and 100%.');
-        taxRateInput.value = '8.90';
-        return;
-      }
-      
-      taxRateInput.value = taxRate.toFixed(2);
-      if (retailPriceInput.value.trim()) {
-        calculate(false);
-      }
-    });
-
-    // Handle Enter key for better navigation
-    retailPriceInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter'){ 
-        e.preventDefault(); 
-        retailPriceInput.blur();
-        taxRateInput.focus();
-      }
-    });
-
-    taxRateInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter'){ 
-        e.preventDefault(); 
-        taxRateInput.blur();
-        calculate(true);
-      }
-    });
-
-    // Clear data when app goes to background (privacy/compliance)
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) {
-        // Clear all calculation data when switching away
-        // This prevents showing previous customer's data
-        retailPriceInput.value = "";
-        results.classList.remove('active');
-        clearError();
-        roundingNoteDiv.style.display = 'none';
-        copyBtn.textContent = "Copy Summary";
-        copyBtn.style.background = '';
-      }
-    });
-
-    // Prevent form submission
-    document.addEventListener('submit', (e) => {
-      e.preventDefault();
-      return false;
-    });
-
-    // Initialize on load
+    // Load saved theme/tax/device
     window.addEventListener('load', () => {
       try{
-        // Load saved theme
         const savedTheme = localStorage.getItem('dpc_theme');
-        if (savedTheme === 'dark') {
-          document.body.classList.add('dark-mode');
-          themeToggle.textContent = '☀️';
-        }
+        if (savedTheme === 'dark') { document.body.classList.add('dark-mode'); themeToggle.textContent = '☀️'; }
 
-        // Load saved tax rate only (never save customer prices)
         const savedTax = localStorage.getItem('dpc_taxRate');
         if (savedTax) taxRateInput.value = savedTax;
 
