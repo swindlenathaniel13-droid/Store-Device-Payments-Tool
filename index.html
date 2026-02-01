@@ -6,1092 +6,726 @@
   <title>Device Payment Calculator</title>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
-
-    :root{
-      --bg1:#ff6b35; --bg2:#f7931e;
-      --card:#fff;
-      --text:#333; --muted:#666;
-      --inv:#fff;
-      --border:#e6e6e6;
-      --accent:#ff6b35;
-      --pill:#fafafa;
-      --errbg:#fff1f1; --errbd:#f3b6b6; --err:#7a1111;
-      --hil1: rgba(255,107,53,.05);
-      --hil2: rgba(247,147,30,.05);
-      --success:#10b981;
-    }
-
-    body.dark-mode{
-      --bg1:#1a1a2e; --bg2:#16213e;
-      --card:#0f3460;
-      --text:#e9e9e9; --muted:#b0b0b0;
-      --inv:#fff;
-      --border:#2a4a6f;
-      --accent:#ff6b35;
-      --pill:#1a3a5c;
-      --errbg:#3d1a1a; --errbd:#6b2b2b; --err:#ffb3b3;
-      --hil1: rgba(255,107,53,.15);
-      --hil2: rgba(247,147,30,.15);
-      --success:#34d399;
-    }
-
     body{
       font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-      background:linear-gradient(135deg,var(--bg1) 0%,var(--bg2) 100%);
+      background:linear-gradient(135deg,#ff6b35 0%,#f7931e 100%);
       min-height:100vh;
-      padding:12px;
+      padding:16px;
       -webkit-tap-highlight-color:transparent;
-      transition:background .3s ease;
     }
-
-    .container{ max-width:860px; margin:0 auto; }
-    .header{ text-align:center; color:var(--inv); margin:6px 0 10px; position:relative; }
-    .header h1{ font-size:22px; font-weight:900; text-shadow:0 2px 4px rgba(0,0,0,.12); }
-    .header p{ font-size:12px; opacity:.92; margin-top:4px; }
-
-    .theme-toggle{
-      position:absolute; top:0; right:0;
-      background:rgba(255,255,255,.2);
-      border:2px solid rgba(255,255,255,.3);
-      border-radius:20px;
-      padding:6px 12px;
+    .wrap{ max-width:980px; margin:0 auto; }
+    .top{
+      text-align:center;
+      color:#fff;
+      margin:8px 0 14px;
+      position:relative;
+    }
+    .top h1{ font-size:28px; font-weight:900; text-shadow:0 2px 4px rgba(0,0,0,.15); }
+    .top p{ font-size:13px; opacity:.92; margin-top:6px; }
+    .moon{
+      position:absolute; right:0; top:0;
+      width:44px; height:44px;
+      border-radius:999px;
+      border:2px solid rgba(255,255,255,.35);
+      background:rgba(255,255,255,.15);
+      color:#fff;
       cursor:pointer;
       font-size:18px;
-      min-height:40px;
     }
-    .theme-toggle:active{ transform:scale(.95); }
 
     .card{
-      background:var(--card);
-      border-radius:16px;
-      padding:14px;
-      box-shadow:0 10px 34px rgba(0,0,0,.14);
-      transition:background .3s ease;
+      background:#fff;
+      border-radius:18px;
+      padding:18px;
+      box-shadow:0 10px 35px rgba(0,0,0,.15);
     }
 
-    .device-toggle{ 
-      display:grid; 
-      grid-template-columns:1fr 1fr 1fr; 
-      gap:8px; 
-      margin-bottom:10px; 
+    .tabs{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-bottom:14px;
     }
-    .toggle-btn{
-      padding:12px 10px;
+    .tab{
+      border:2px solid #e6e6e6;
+      background:#fff;
       border-radius:12px;
-      border:2px solid var(--border);
-      background:var(--card);
+      padding:12px;
       font-weight:900;
-      font-size:14px;
-      color:var(--muted);
       cursor:pointer;
-      min-height:48px;
-      transition:all .2s ease;
     }
-    .toggle-btn:active{ transform:scale(.98); }
-    .toggle-btn.active{
-      border-color:var(--accent);
-      background:linear-gradient(135deg,var(--bg1) 0%,var(--bg2) 100%);
-      color:var(--inv);
-      box-shadow:0 2px 10px rgba(255,107,53,.28);
+    .tab.active{
+      border-color:#ff6b35;
+      background:linear-gradient(135deg,#ff6b35 0%,#f7931e 100%);
+      color:#fff;
     }
 
-    .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-    @media (max-width:520px){ .grid2{ grid-template-columns:1fr; } }
-
-    .input-group{ margin-bottom:10px; }
     .label{
-      display:block; font-size:11px; font-weight:900; letter-spacing:.6px;
-      text-transform:uppercase; color:var(--text); margin-bottom:6px;
+      font-size:12px;
+      font-weight:900;
+      color:#333;
+      letter-spacing:.6px;
+      text-transform:uppercase;
+      margin:10px 0 6px;
     }
-    .help{ font-size:11px; color:var(--muted); margin-top:6px; line-height:1.25; }
+    .help{
+      font-size:12px;
+      color:#666;
+      margin-top:6px;
+      line-height:1.3;
+    }
 
-    .input-wrap{ position:relative; }
+    .row2{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+    @media (max-width:760px){ .row2{ grid-template-columns:1fr; } }
+
+    .inwrap{ position:relative; }
     .prefix{
       position:absolute; left:12px; top:50%;
       transform:translateY(-50%);
-      font-weight:900; color:var(--accent);
-      pointer-events:none; z-index:1;
+      font-weight:900;
+      color:#ff6b35;
+      pointer-events:none;
     }
 
     input[type="text"], input[type="number"]{
       width:100%;
       padding:12px 12px 12px 34px;
-      font-size:16px;
-      font-weight:900;
+      font-size:16px; /* avoids iOS zoom */
+      border:2px solid #e6e6e6;
       border-radius:12px;
-      border:2px solid var(--border);
       outline:none;
-      background:var(--card);
-      color:var(--text);
-      min-height:48px;
+      font-weight:900;
     }
-    input:focus{ border-color:var(--accent); box-shadow:0 0 0 4px rgba(255,107,53,.12); }
+    input:focus{ border-color:#ff6b35; box-shadow:0 0 0 4px rgba(255,107,53,.12); }
 
     .pill{
       display:inline-block;
       padding:10px 12px;
       border-radius:12px;
-      background:var(--pill);
-      border:2px solid var(--border);
+      border:2px solid #e6e6e6;
+      background:#fafafa;
       font-weight:900;
-      font-size:14px;
-      color:var(--text);
-      min-height:48px;
+      color:#333;
+      min-height:46px;
       line-height:24px;
     }
 
-    .checkrow{
-      display:flex;
-      flex-wrap:wrap;
-      gap:14px;
-      align-items:center;
-      margin-top:8px;
-    }
-    .checkrow label{
-      display:flex; align-items:center; gap:8px;
-      font-size:12px; font-weight:800; color:var(--text);
-    }
-
-    /* Expandable device section on Accessories tab */
-    .expandable-device{
-      margin-top:10px;
-      border:2px solid var(--success);
-      border-radius:14px;
-      padding:12px;
-      background:linear-gradient(135deg,rgba(16,185,129,.05),rgba(52,211,153,.05));
-      display:none;
-      animation:slideDown .3s ease-out;
-    }
-    .expandable-device.active{ display:block; }
-    
-    @keyframes slideDown{
-      from{ opacity:0; transform:translateY(-10px); }
-      to{ opacity:1; transform:translateY(0); }
-    }
-
-    .expand-title{
-      font-size:11px;
-      font-weight:900;
-      color:var(--success);
-      text-transform:uppercase;
-      letter-spacing:.8px;
-      margin-bottom:10px;
-    }
-
-    .mini-toggle{
+    .btnrow{
       display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:8px;
-      margin-bottom:10px;
+      grid-template-columns:1fr 1fr 1fr;
+      gap:10px;
+      margin-top:14px;
     }
-    .mini-toggle-btn{
-      padding:10px;
-      border-radius:10px;
-      border:2px solid var(--border);
-      background:var(--card);
-      font-weight:900;
-      font-size:13px;
-      color:var(--muted);
-      cursor:pointer;
-      min-height:44px;
-    }
-    .mini-toggle-btn:active{ transform:scale(.98); }
-    .mini-toggle-btn.active{
-      border-color:var(--success);
-      background:var(--success);
-      color:#fff;
-    }
-
-    .btnrow{ display:flex; gap:8px; flex-wrap:wrap; margin-top:2px; }
-    button{
-      border:none; border-radius:12px; font-weight:900; cursor:pointer;
-      -webkit-tap-highlight-color:transparent; touch-action:manipulation;
-      min-height:48px;
-    }
-    button:active{ transform:translateY(1px); }
+    @media (max-width:760px){ .btnrow{ grid-template-columns:1fr; } }
 
     .btn{
-      flex:1 1 160px;
-      padding:14px;
-      font-size:14px;
-      letter-spacing:.6px;
+      min-height:48px;
+      border-radius:12px;
+      border:2px solid #ff6b35;
+      font-weight:900;
+      letter-spacing:.8px;
       text-transform:uppercase;
-      background:linear-gradient(135deg,var(--bg1) 0%,var(--bg2) 100%);
-      color:var(--inv);
-      box-shadow:0 4px 14px rgba(255,107,53,.28);
+      cursor:pointer;
     }
-    .btn.secondary{
-      background:var(--card);
-      color:var(--accent);
-      border:2px solid var(--accent);
-      box-shadow:none;
+    .btn.primary{
+      border:none;
+      background:linear-gradient(135deg,#ff6b35 0%,#f7931e 100%);
+      color:#fff;
+    }
+    .btn.ghost{
+      background:#fff;
+      color:#ff6b35;
     }
 
     .error{
+      margin-top:12px;
       display:none;
-      margin-top:10px;
-      background:var(--errbg);
-      border:2px solid var(--errbd);
-      color:var(--err);
+      background:#fff1f1;
+      border:2px solid #f3b6b6;
+      color:#7a1111;
       padding:10px 12px;
       border-radius:12px;
       font-weight:900;
-      line-height:1.35;
-      font-size:13px;
     }
 
-    .results{ display:none; margin-top:12px; }
-    .results.active{ display:block; animation:slideIn .3s ease-out; }
-    @keyframes slideIn{
-      from{ opacity:0; transform:translateY(-10px); }
-      to{ opacity:1; transform:translateY(0); }
-    }
-
-    .section-title{
+    .quoteHead{
+      margin-top:16px;
       text-align:center;
       font-weight:900;
-      color:var(--text);
-      font-size:13px;
-      margin:10px 0 8px;
-      letter-spacing:.4px;
+      color:#333;
     }
 
-    .cards{
+    .quoteCards{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+      margin-top:10px;
+    }
+    @media (max-width:760px){ .quoteCards{ grid-template-columns:1fr; } }
+
+    .qcard{
+      border:2px solid #e6e6e6;
+      border-radius:14px;
+      padding:14px;
+      text-align:center;
+      background:#fff;
+    }
+    .qcard.hi{
+      border-color:#ff6b35;
+      background:rgba(255,107,53,.05);
+    }
+    .qtitle{
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.8px;
+      text-transform:uppercase;
+      color:#ff6b35;
+    }
+    .qval{
+      font-size:34px;
+      font-weight:900;
+      color:#222;
+      margin-top:6px;
+    }
+    .qsub{
+      font-size:11px;
+      color:#666;
+      margin-top:4px;
+      letter-spacing:.6px;
+      text-transform:uppercase;
+    }
+
+    /* Breakdown tables */
+    .breakBox{
+      margin-top:14px;
+      border:2px solid #e6e6e6;
+      border-radius:14px;
+      padding:12px;
+      background:#fff;
+    }
+    .breakTitle{
+      font-weight:900;
+      color:#ff6b35;
+      text-transform:uppercase;
+      letter-spacing:.8px;
+      font-size:12px;
+      margin-bottom:8px;
+    }
+    .line{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      padding:6px 0;
+      border-bottom:1px solid #eee;
+      font-size:14px;
+      color:#333;
+      font-weight:700;
+    }
+    .line:last-child{ border-bottom:none; }
+    .line strong{ font-weight:900; }
+    .line.total{
+      padding-top:10px;
+      border-top:2px solid #eee;
+      border-bottom:none;
+      color:#ff6b35;
+      font-size:16px;
+    }
+
+    /* Accessory combine box */
+    .combineRow{
+      margin-top:14px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      font-weight:900;
+      color:#333;
+    }
+
+    .devicePanel{
+      margin-top:10px;
+      border:2px solid #16a34a;
+      border-radius:14px;
+      padding:12px;
+      background:#f0fff7;
+    }
+    .devicePanel .panelTitle{
+      font-weight:900;
+      letter-spacing:.8px;
+      text-transform:uppercase;
+      color:#16a34a;
+      font-size:12px;
+      margin-bottom:10px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .smallTabs{
       display:grid;
       grid-template-columns:1fr 1fr;
       gap:10px;
       margin-bottom:10px;
     }
-    .mini-card{
-      border-radius:14px;
-      border:2px solid var(--border);
+    .smallTab{
+      border:2px solid #e6e6e6;
+      border-radius:12px;
+      background:#fff;
       padding:10px;
-      text-align:center;
-      background:var(--card);
-    }
-    .mini-card.highlight{
-      border-color:var(--accent);
-      background:linear-gradient(135deg,var(--hil1),var(--hil2));
-      box-shadow:0 4px 16px rgba(255,107,53,.10);
-    }
-    .mini-title{
-      font-size:11px;
       font-weight:900;
-      color:var(--accent);
-      text-transform:uppercase;
-      letter-spacing:.8px;
-      margin-bottom:6px;
+      cursor:pointer;
     }
-    .mini-value{ font-size:22px; font-weight:900; color:var(--text); margin-bottom:2px; }
-    .mini-sub{ font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.6px; }
-
-    .note{
-      display:none;
-      margin-top:8px;
-      text-align:center;
-      font-size:12px;
-      color:var(--text);
-      line-height:1.35;
+    .smallTab.active{
+      border-color:#16a34a;
+      background:#16a34a;
+      color:#fff;
     }
 
-    .tab-content{ display:none; }
-    .tab-content.active{ display:block; }
-
-    .acc-breakdown{
-      background:var(--pill);
-      border:2px solid var(--border);
-      border-radius:14px;
-      padding:12px;
-      margin-top:10px;
-    }
-    .acc-breakdown-title{
-      font-size:11px;
-      font-weight:900;
-      color:var(--accent);
-      text-transform:uppercase;
-      letter-spacing:.8px;
-      margin-bottom:8px;
-    }
-    .acc-breakdown-row{
+    .checkline{
       display:flex;
-      justify-content:space-between;
-      padding:6px 0;
-      font-size:13px;
-      border-bottom:1px solid var(--border);
+      flex-wrap:wrap;
+      gap:16px;
+      margin-top:10px;
+      font-weight:900;
+      color:#333;
+      align-items:center;
     }
-    .acc-breakdown-row:last-child{ border-bottom:none; }
-    .acc-breakdown-label{ color:var(--muted); font-weight:700; }
-    .acc-breakdown-value{ color:var(--text); font-weight:900; }
+    .checkline label{ display:flex; gap:8px; align-items:center; font-size:13px; }
 
-    @media (max-width:420px){
-      .cards{ grid-template-columns:1fr; }
-      .device-toggle{ grid-template-columns:1fr; }
-    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme">🌙</button>
+  <div class="wrap">
+    <div class="top">
+      <button class="moon" id="themeBtn" type="button" title="Toggle theme">🌙</button>
       <h1>Device Payment Calculator</h1>
-      <p>Clean, focused calculators for devices and accessories.</p>
+      <p>Accessories are separate (not financed). You can optionally add accessory totals into device “Due Today” or “Pay in Full.”</p>
     </div>
 
     <div class="card">
-      <!-- TAB BUTTONS -->
-      <div class="device-toggle" role="tablist" aria-label="Calculator mode">
-        <button class="toggle-btn active" id="phoneBtn" type="button" data-tab="phone">📱 Phone</button>
-        <button class="toggle-btn" id="watchBtn" type="button" data-tab="watch">⌚ Watch</button>
-        <button class="toggle-btn" id="accBtn" type="button" data-tab="accessories">🎧 Accessories</button>
-      </div>
 
-      <!-- PHONE TAB -->
-      <div class="tab-content active" id="phoneTab">
-        <div class="input-group">
-          <label class="label" for="retailPricePhone">Phone Retail Price</label>
-          <div class="input-wrap">
-            <span class="prefix" aria-hidden="true">$</span>
-            <input
-              type="text"
-              id="retailPricePhone"
-              placeholder="0"
-              inputmode="decimal"
-              autocomplete="off"
-              autocapitalize="off"
-              spellcheck="false"
-            />
+      <!-- ACCESSORIES SECTION (your screenshot flow) -->
+      <div class="row2">
+        <div>
+          <div class="label">Eligible Accessories Subtotal</div>
+          <div class="inwrap">
+            <span class="prefix">$</span>
+            <input id="accEligible" type="text" inputmode="decimal" placeholder="0" />
           </div>
-          <div class="help">Retail is rounded to a whole dollar for phones.</div>
+          <div class="help">Cases, chargers (non-Apple), screen protectors, etc. Gets 30% off if AARP/USAA is checked.</div>
         </div>
 
-        <div class="grid2">
-          <div class="input-group">
-            <label class="label" for="taxRatePhone">Tax Rate (%)</label>
-            <div class="input-wrap">
-              <span class="prefix" aria-hidden="true">%</span>
-              <input type="number" id="taxRatePhone" value="8.9" step="0.01" min="0" max="100" inputmode="decimal" />
-            </div>
-            <div class="help">Local tax rate (e.g., <b>8.9</b>).</div>
+        <div>
+          <div class="label">No-Discount Subtotal (Apple/Audio)</div>
+          <div class="inwrap">
+            <span class="prefix">$</span>
+            <input id="accNoDisc" type="text" inputmode="decimal" placeholder="0" />
           </div>
-
-          <div class="input-group">
-            <label class="label">Term</label>
-            <div class="pill">24 months</div>
-            <div class="help">Fixed term.</div>
-          </div>
+          <div class="help">Apple products and audio accessories (no discount applied).</div>
         </div>
       </div>
 
-      <!-- WATCH TAB -->
-      <div class="tab-content" id="watchTab">
-        <div class="input-group">
-          <label class="label" for="retailPriceWatch">Watch Retail Price</label>
-          <div class="input-wrap">
-            <span class="prefix" aria-hidden="true">$</span>
-            <input
-              type="text"
-              id="retailPriceWatch"
-              placeholder="0"
-              inputmode="decimal"
-              autocomplete="off"
-              autocapitalize="off"
-              spellcheck="false"
-            />
-          </div>
-          <div class="help">Watches can include cents. Monthly is rounded up.</div>
+      <div class="combineRow">
+        <label style="display:flex; gap:10px; align-items:center;">
+          <input type="checkbox" id="aarpUsaa" />
+          AARP/USAA Member (30% off eligible accessories)
+        </label>
+      </div>
+
+      <div class="label">Tax Rate (%)</div>
+      <div class="inwrap">
+        <span class="prefix">%</span>
+        <input id="taxRate" type="number" inputmode="decimal" step="0.01" value="8.9" />
+      </div>
+      <div class="help">Your local sales tax rate (example: 8.9).</div>
+
+      <div class="combineRow">
+        <label style="display:flex; gap:10px; align-items:center;">
+          <input type="checkbox" id="combineDevice" />
+          Combine with device purchase
+        </label>
+      </div>
+
+      <!-- DEVICE DETAILS PANEL -->
+      <div class="devicePanel" id="devicePanel" style="display:none;">
+        <div class="panelTitle">📱 Device Details</div>
+
+        <div class="smallTabs">
+          <button class="smallTab active" id="devPhoneBtn" type="button">📱 Phone</button>
+          <button class="smallTab" id="devWatchBtn" type="button">⌚ Watch</button>
         </div>
 
-        <div class="grid2">
-          <div class="input-group">
-            <label class="label" for="taxRateWatch">Tax Rate (%)</label>
-            <div class="input-wrap">
-              <span class="prefix" aria-hidden="true">%</span>
-              <input type="number" id="taxRateWatch" value="8.9" step="0.01" min="0" max="100" inputmode="decimal" />
-            </div>
-            <div class="help">Local tax rate (e.g., <b>8.9</b>).</div>
-          </div>
+        <div class="label">Device Retail Price</div>
+        <div class="inwrap">
+          <span class="prefix">$</span>
+          <input id="deviceRetail" type="text" inputmode="decimal" placeholder="0" />
+        </div>
+        <div class="help" id="deviceHint">Retail is rounded to a whole dollar for phones.</div>
 
-          <div class="input-group">
-            <label class="label">Term</label>
-            <div class="pill">24 months</div>
-            <div class="help">Fixed term.</div>
-          </div>
+        <div class="checkline">
+          <label><input type="checkbox" id="addAccToDue" /> Add accessories to <b>Due Today</b></label>
+          <label><input type="checkbox" id="addAccToFull" /> Add accessories to <b>Pay in Full</b></label>
         </div>
       </div>
 
-      <!-- ACCESSORIES ONLY TAB -->
-      <div class="tab-content" id="accessoriesTab">
-        <div class="grid2">
-          <div class="input-group">
-            <label class="label" for="accEligible">Eligible Accessories Subtotal</label>
-            <div class="input-wrap">
-              <span class="prefix" aria-hidden="true">$</span>
-              <input type="text" id="accEligible" placeholder="0" inputmode="decimal" autocomplete="off" autocapitalize="off" spellcheck="false" />
-            </div>
-            <div class="help">Cases, chargers, screen protectors, etc. Gets 30% discount if AARP/USAA.</div>
-          </div>
-
-          <div class="input-group">
-            <label class="label" for="accNoDisc">No-Discount Subtotal</label>
-            <div class="input-wrap">
-              <span class="prefix" aria-hidden="true">$</span>
-              <input type="text" id="accNoDisc" placeholder="0" inputmode="decimal" autocomplete="off" autocapitalize="off" spellcheck="false" />
-            </div>
-            <div class="help">Apple products and audio accessories (no discount applied).</div>
-          </div>
-        </div>
-
-        <div class="checkrow">
-          <label><input type="checkbox" id="aarpUsaa" /> AARP/USAA Member (30% off eligible accessories)</label>
-        </div>
-
-        <div class="input-group" style="margin-top:10px;">
-          <label class="label" for="taxRateAcc">Tax Rate (%)</label>
-          <div class="input-wrap">
-            <span class="prefix" aria-hidden="true">%</span>
-            <input type="number" id="taxRateAcc" value="8.9" step="0.01" min="0" max="100" inputmode="decimal" />
-          </div>
-          <div class="help">Your local sales tax rate (example: <b>8.9</b>).</div>
-        </div>
-
-        <!-- OPTIONAL DEVICE COMBINATION -->
-        <div class="checkrow" style="margin-top:12px; border-top:2px dashed var(--border); padding-top:12px;">
-          <label style="font-size:13px;"><input type="checkbox" id="combineWithDevice" /> <b>Combine with device purchase</b></label>
-        </div>
-
-        <!-- EXPANDABLE DEVICE SECTION -->
-        <div class="expandable-device" id="deviceSection">
-          <div class="expand-title">📱 Device Details</div>
-
-          <div class="mini-toggle">
-            <button class="mini-toggle-btn active" id="devicePhoneBtn" type="button">📱 Phone</button>
-            <button class="mini-toggle-btn" id="deviceWatchBtn" type="button">⌚ Watch</button>
-          </div>
-
-          <div class="input-group">
-            <label class="label" for="retailPriceAcc">Device Retail Price</label>
-            <div class="input-wrap">
-              <span class="prefix" aria-hidden="true">$</span>
-              <input type="text" id="retailPriceAcc" placeholder="0" inputmode="decimal" autocomplete="off" autocapitalize="off" spellcheck="false" />
-            </div>
-            <div class="help" id="deviceHelpAcc">Retail is rounded to a whole dollar for phones.</div>
-          </div>
-
-          <div class="checkrow">
-            <label><input type="checkbox" id="addAccToDue" /> Add accessories to <b>Due Today</b></label>
-            <label><input type="checkbox" id="addAccToFull" /> Add accessories to <b>Pay in Full</b></label>
-          </div>
-        </div>
-      </div>
-
-      <!-- ACTION BUTTONS -->
       <div class="btnrow">
-        <button class="btn" type="button" id="calcBtn">Calculate</button>
-        <button class="btn secondary" id="copyBtn" type="button">Copy Summary</button>
-        <button class="btn secondary" type="button" id="resetBtn">Reset</button>
+        <button class="btn primary" id="calcBtn" type="button">Calculate</button>
+        <button class="btn ghost" id="copyBtn" type="button">Copy Summary</button>
+        <button class="btn ghost" id="resetBtn" type="button">Reset</button>
       </div>
 
-      <div class="error" id="errorBox"></div>
+      <div class="error" id="errBox"></div>
 
-      <!-- RESULTS -->
-      <div class="results" id="results">
-        <div class="section-title" id="headline">Results</div>
+      <div class="quoteHead" id="quoteTitle" style="display:none;">Accessory Quote</div>
 
-        <!-- TOP TOTALS -->
-        <div class="cards">
-          <div class="mini-card">
-            <div class="mini-title" id="titlePayFull">Pay in Full Today</div>
-            <div class="mini-value" id="payFullToday">$0.00</div>
-            <div class="mini-sub" id="payFullSub">Device + tax</div>
-          </div>
-
-          <div class="mini-card highlight">
-            <div class="mini-title" id="titleDueToday">Due Today</div>
-            <div class="mini-value" id="dueToday">$0.00</div>
-            <div class="mini-sub" id="dueSub">Down + device tax</div>
-          </div>
+      <div class="quoteCards" id="quoteCards" style="display:none;">
+        <div class="qcard">
+          <div class="qtitle" id="leftTitle">Accessory Total Today</div>
+          <div class="qval" id="leftVal">$0.00</div>
+          <div class="qsub" id="leftSub">Accessories + tax</div>
         </div>
-
-        <!-- DEVICE CARDS -->
-        <div id="deviceCards">
-          <div class="cards" style="margin-bottom:6px;">
-            <div class="mini-card">
-              <div class="mini-title">Monthly Payment</div>
-              <div class="mini-value" id="infoMonthly">$0.00</div>
-              <div class="mini-sub">Device only</div>
-            </div>
-            <div class="mini-card">
-              <div class="mini-title">Remaining Balance</div>
-              <div class="mini-value" id="infoBalance">$0.00</div>
-              <div class="mini-sub">Device only</div>
-            </div>
-            <div class="mini-card">
-              <div class="mini-title">Down Payment</div>
-              <div class="mini-value" id="infoDown">$0.00</div>
-              <div class="mini-sub" id="downSub">Auto</div>
-            </div>
-            <div class="mini-card">
-              <div class="mini-title">Device Tax</div>
-              <div class="mini-value" id="deviceTax">$0.00</div>
-              <div class="mini-sub">On device</div>
-            </div>
-          </div>
-
-          <div class="note" id="roundingNote"></div>
-        </div>
-
-        <!-- ACCESSORY BREAKDOWN -->
-        <div class="acc-breakdown" id="accBreakdown" style="display:none;">
-          <div class="acc-breakdown-title">Accessory Breakdown</div>
-          <div class="acc-breakdown-row">
-            <span class="acc-breakdown-label">Eligible Subtotal:</span>
-            <span class="acc-breakdown-value" id="breakEligible">$0.00</span>
-          </div>
-          <div class="acc-breakdown-row">
-            <span class="acc-breakdown-label">AARP/USAA Discount (30%):</span>
-            <span class="acc-breakdown-value" id="breakDiscount">−$0.00</span>
-          </div>
-          <div class="acc-breakdown-row">
-            <span class="acc-breakdown-label">Eligible After Discount:</span>
-            <span class="acc-breakdown-value" id="breakEligibleAfter">$0.00</span>
-          </div>
-          <div class="acc-breakdown-row">
-            <span class="acc-breakdown-label">No-Discount Subtotal:</span>
-            <span class="acc-breakdown-value" id="breakNoDisc">$0.00</span>
-          </div>
-          <div class="acc-breakdown-row" style="border-top:2px solid var(--border); padding-top:10px; margin-top:6px;">
-            <span class="acc-breakdown-label">Accessories Subtotal:</span>
-            <span class="acc-breakdown-value" id="breakSubtotal">$0.00</span>
-          </div>
-          <div class="acc-breakdown-row">
-            <span class="acc-breakdown-label">Tax:</span>
-            <span class="acc-breakdown-value" id="breakTax">$0.00</span>
-          </div>
-          <div class="acc-breakdown-row" style="border-top:2px solid var(--border); padding-top:10px; margin-top:6px;">
-            <span class="acc-breakdown-label" style="font-size:14px; color:var(--accent);">Total Due Today:</span>
-            <span class="acc-breakdown-value" style="font-size:16px; color:var(--accent);" id="breakTotal">$0.00</span>
-          </div>
+        <div class="qcard hi">
+          <div class="qtitle" id="rightTitle">Accessory Due Today</div>
+          <div class="qval" id="rightVal">$0.00</div>
+          <div class="qsub" id="rightSub">Accessories + tax</div>
         </div>
       </div>
+
+      <!-- ACCESSORY BREAKDOWN -->
+      <div class="breakBox" id="accBreak" style="display:none;">
+        <div class="breakTitle">Accessory Breakdown</div>
+
+        <div class="line"><span>Eligible Subtotal:</span><strong id="bElig">$0.00</strong></div>
+        <div class="line"><span>AARP/USAA Discount (30%):</span><strong id="bDisc">$0.00</strong></div>
+        <div class="line"><span>Eligible After Discount:</span><strong id="bEligAfter">$0.00</strong></div>
+        <div class="line"><span>No-Discount Subtotal:</span><strong id="bNoDisc">$0.00</strong></div>
+
+        <div class="line" style="margin-top:6px;"><span>Accessories Subtotal:</span><strong id="bAccSub">$0.00</strong></div>
+        <div class="line"><span>Accessory Tax:</span><strong id="bAccTax">$0.00</strong></div>
+
+        <div class="line total"><span>Total Due Today:</span><strong id="bAccTotal">$0.00</strong></div>
+      </div>
+
+      <!-- DEVICE BREAKDOWN (NEW: matches accessory breakdown style) -->
+      <div class="breakBox" id="devBreak" style="display:none;">
+        <div class="breakTitle">Device Breakdown</div>
+
+        <div class="line"><span>Device Retail:</span><strong id="dRetail">$0.00</strong></div>
+        <div class="line"><span>Down Payment:</span><strong id="dDown">$0.00</strong></div>
+        <div class="line"><span>Remaining Balance:</span><strong id="dBal">$0.00</strong></div>
+        <div class="line"><span>Monthly Payment (device only):</span><strong id="dMonthly">$0.00</strong></div>
+        <div class="line"><span>Device Tax:</span><strong id="dTax">$0.00</strong></div>
+
+        <div class="line" style="margin-top:6px;"><span>Device Due Today:</span><strong id="dDue">$0.00</strong></div>
+        <div class="line"><span>Device Pay in Full:</span><strong id="dFull">$0.00</strong></div>
+
+        <div class="line" id="dCombinedRow1" style="display:none;"><span>Combined Due Today:</span><strong id="dDueCombined">$0.00</strong></div>
+        <div class="line" id="dCombinedRow2" style="display:none;"><span>Combined Pay in Full:</span><strong id="dFullCombined">$0.00</strong></div>
+
+        <div class="line total" id="dNote" style="display:none;"><span>Note:</span><strong id="dNoteText" style="color:#666; font-size:13px; font-weight:800;"></strong></div>
+      </div>
+
     </div>
   </div>
 
   <script>
     const TERM = 24;
-    const DISCOUNT_RATE = 0.30;
-    let currentTab = 'phone';
-    let autoTimer = null;
-    let accDeviceType = 'phone';
+    const DISCOUNT = 0.30;
 
-    const results = document.getElementById('results');
-    const errorBox = document.getElementById('errorBox');
-    const deviceCards = document.getElementById('deviceCards');
-    const roundingNoteDiv = document.getElementById('roundingNote');
-    const copyBtn = document.getElementById('copyBtn');
-    const accBreakdown = document.getElementById('accBreakdown');
+    const el = (id)=>document.getElementById(id);
 
-    const phoneBtn = document.getElementById('phoneBtn');
-    const watchBtn = document.getElementById('watchBtn');
-    const accBtn = document.getElementById('accBtn');
-    const calcBtn = document.getElementById('calcBtn');
-    const resetBtn = document.getElementById('resetBtn');
-    const themeToggle = document.getElementById('themeToggle');
+    // inputs
+    const accEligible = el('accEligible');
+    const accNoDisc   = el('accNoDisc');
+    const aarpUsaa    = el('aarpUsaa');
+    const taxRate     = el('taxRate');
 
-    const combineWithDevice = document.getElementById('combineWithDevice');
-    const deviceSection = document.getElementById('deviceSection');
-    const devicePhoneBtn = document.getElementById('devicePhoneBtn');
-    const deviceWatchBtn = document.getElementById('deviceWatchBtn');
-    const deviceHelpAcc = document.getElementById('deviceHelpAcc');
+    const combineDevice = el('combineDevice');
+    const devicePanel   = el('devicePanel');
+    const deviceRetail  = el('deviceRetail');
+    const addAccToDue   = el('addAccToDue');
+    const addAccToFull  = el('addAccToFull');
 
-    const titlePayFull = document.getElementById('titlePayFull');
-    const titleDueToday = document.getElementById('titleDueToday');
-    const payFullSub = document.getElementById('payFullSub');
-    const dueSub = document.getElementById('dueSub');
-    const headline = document.getElementById('headline');
+    const devPhoneBtn = el('devPhoneBtn');
+    const devWatchBtn = el('devWatchBtn');
+    const deviceHint  = el('deviceHint');
+
+    const errBox = el('errBox');
+
+    // outputs
+    const quoteTitle = el('quoteTitle');
+    const quoteCards = el('quoteCards');
+    const leftTitle = el('leftTitle');
+    const rightTitle = el('rightTitle');
+    const leftVal = el('leftVal');
+    const rightVal = el('rightVal');
+    const leftSub = el('leftSub');
+    const rightSub = el('rightSub');
+
+    const accBreak = el('accBreak');
+    const devBreak = el('devBreak');
+
+    let deviceType = 'phone'; // phone | watch
+    let typingTimer = null;
 
     function money(n){
-      if (isNaN(n) || !isFinite(n)) return '$0.00';
-      return n.toLocaleString('en-US', { style:'currency', currency:'USD', minimumFractionDigits:2, maximumFractionDigits:2 });
+      if (!isFinite(n)) n = 0;
+      return n.toLocaleString('en-US',{style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2});
     }
-    function round2(n){ if (isNaN(n)) return 0; return Math.round((n + Number.EPSILON) * 100) / 100; }
-    function ceil2(n){ if (isNaN(n)) return 0; return Math.ceil(n * 100) / 100; }
+    function round2(n){ return Math.round((n + Number.EPSILON) * 100) / 100; }
+    function ceil2(n){ return Math.ceil(n * 100) / 100; }
 
-    function showError(msg){ errorBox.style.display='block'; errorBox.textContent=msg; }
-    function clearError(){ errorBox.style.display='none'; errorBox.textContent=''; }
-
-    function toggleTheme(){
-      const isDark = document.body.classList.toggle('dark-mode');
-      themeToggle.textContent = isDark ? '☀️' : '🌙';
-      try { localStorage.setItem('dpc_theme', isDark ? 'dark' : 'light'); } catch(e){}
+    function showError(msg){
+      errBox.style.display='block';
+      errBox.textContent = msg;
+    }
+    function clearError(){
+      errBox.style.display='none';
+      errBox.textContent = '';
     }
 
-    function phoneDownPayment(retailWhole){
+    // strict numeric sanitizer (prevents letters)
+    function sanitizeMoneyInput(input){
+      const raw = input.value;
+      let cleaned = raw.replace(/[^0-9.]/g,'');
+      const firstDot = cleaned.indexOf('.');
+      if (firstDot !== -1){
+        cleaned = cleaned.slice(0, firstDot+1) + cleaned.slice(firstDot+1).replace(/\./g,'');
+      }
+      if (cleaned !== raw){
+        const pos = input.selectionStart || cleaned.length;
+        input.value = cleaned;
+        try{ input.setSelectionRange(pos, pos); }catch(e){}
+      }
+    }
+    function parseMoney(input){
+      const v = (input.value||'').trim();
+      const n = parseFloat(v);
+      return isFinite(n) ? n : 0;
+    }
+
+    // phone down rule (remainder, min 11)
+    function phoneDown(retailWhole){
       let down = ((retailWhole % TERM) + TERM) % TERM;
       if (down < 11) down += TERM;
       return down;
     }
 
-    function switchTab(tab){
-      currentTab = tab;
-      
-      phoneBtn.classList.toggle('active', tab === 'phone');
-      watchBtn.classList.toggle('active', tab === 'watch');
-      accBtn.classList.toggle('active', tab === 'accessories');
-
-      document.getElementById('phoneTab').classList.toggle('active', tab === 'phone');
-      document.getElementById('watchTab').classList.toggle('active', tab === 'watch');
-      document.getElementById('accessoriesTab').classList.toggle('active', tab === 'accessories');
-
-      // Sync tax rate across tabs
-      const taxRate = parseFloat(
-        currentTab === 'phone' ? document.getElementById('taxRatePhone').value :
-        currentTab === 'watch' ? document.getElementById('taxRateWatch').value :
-        document.getElementById('taxRateAcc').value
-      );
-      
-      if (tab === 'phone') document.getElementById('taxRatePhone').value = taxRate;
-      else if (tab === 'watch') document.getElementById('taxRateWatch').value = taxRate;
-      else document.getElementById('taxRateAcc').value = taxRate;
-
-      try { localStorage.setItem('dpc_currentTab', tab); } catch(e){}
-      scheduleAutoCalc();
+    function scheduleCalc(){
+      if (typingTimer) clearTimeout(typingTimer);
+      typingTimer = setTimeout(()=>calculate(false), 250);
     }
 
-    function setAccDeviceType(type){
-      accDeviceType = type;
-      devicePhoneBtn.classList.toggle('active', type === 'phone');
-      deviceWatchBtn.classList.toggle('active', type === 'watch');
-
-      deviceHelpAcc.textContent = (type === 'phone')
-        ? "Retail is rounded to a whole dollar for phones."
-        : "Watches can include cents. Monthly is rounded up.";
-
-      scheduleAutoCalc();
+    function setDeviceType(t){
+      deviceType = t;
+      devPhoneBtn.classList.toggle('active', t==='phone');
+      devWatchBtn.classList.toggle('active', t==='watch');
+      deviceHint.textContent = t==='phone'
+        ? 'Retail is rounded to a whole dollar for phones.'
+        : 'Watches can include cents. Monthly is rounded up to the nearest cent.';
+      scheduleCalc();
     }
 
-    function sanitizeMoneyInput(inputEl){
-      const raw = inputEl.value;
-      let cleaned = raw.replace(/[^0-9.]/g, '');
-      const firstDot = cleaned.indexOf('.');
-      if (firstDot !== -1){
-        cleaned = cleaned.slice(0, firstDot + 1) + cleaned.slice(firstDot + 1).replace(/\./g, '');
+    combineDevice.addEventListener('change', ()=>{
+      devicePanel.style.display = combineDevice.checked ? 'block' : 'none';
+      if (!combineDevice.checked){
+        devBreak.style.display = 'none';
       }
-      if (cleaned !== raw){
-        const pos = inputEl.selectionStart || cleaned.length;
-        inputEl.value = cleaned;
-        try { inputEl.setSelectionRange(pos, pos); } catch(e){}
-      }
-    }
+      scheduleCalc();
+    });
 
-    function parseMoney(val){
-      const v = (val || '').toString().trim();
-      const n = parseFloat(v);
-      return (isFinite(n) ? n : 0);
-    }
+    devPhoneBtn.addEventListener('click', ()=>setDeviceType('phone'));
+    devWatchBtn.addEventListener('click', ()=>setDeviceType('watch'));
 
-    function scheduleAutoCalc(){
-      if (autoTimer) clearTimeout(autoTimer);
-      autoTimer = setTimeout(() => calculate(false), 250);
-    }
+    // input listeners
+    [accEligible, accNoDisc, deviceRetail].forEach(inp=>{
+      inp.addEventListener('input', ()=>{
+        sanitizeMoneyInput(inp);
+        scheduleCalc();
+      });
+    });
+    [taxRate].forEach(inp=>{
+      inp.addEventListener('input', scheduleCalc);
+      inp.addEventListener('blur', scheduleCalc);
+    });
+    [aarpUsaa, addAccToDue, addAccToFull].forEach(chk=>{
+      chk.addEventListener('change', scheduleCalc);
+    });
 
-    function calculate(userInitiated = false){
+    el('calcBtn').addEventListener('click', ()=>calculate(true));
+    el('resetBtn').addEventListener('click', ()=>{
+      accEligible.value=''; accNoDisc.value='';
+      aarpUsaa.checked=false;
+      taxRate.value='8.9';
+      combineDevice.checked=false;
+      devicePanel.style.display='none';
+      deviceRetail.value='';
+      addAccToDue.checked=false;
+      addAccToFull.checked=false;
+      setDeviceType('phone');
+      accBreak.style.display='none';
+      devBreak.style.display='none';
+      quoteTitle.style.display='none';
+      quoteCards.style.display='none';
       clearError();
-      roundingNoteDiv.style.display = 'none';
-      roundingNoteDiv.textContent = '';
-      copyBtn.textContent = "Copy Summary";
-      accBreakdown.style.display = 'none';
+    });
 
-      let taxRate = 8.9;
-      if (currentTab === 'phone') taxRate = parseFloat(document.getElementById('taxRatePhone').value || '8.9');
-      else if (currentTab === 'watch') taxRate = parseFloat(document.getElementById('taxRateWatch').value || '8.9');
-      else taxRate = parseFloat(document.getElementById('taxRateAcc').value || '8.9');
+    el('copyBtn').addEventListener('click', ()=>{
+      // quick copy: just reuse the visible breakdown values (safe + simple)
+      const lines = [];
+      if (accBreak.style.display!=='none'){
+        lines.push('Accessory Breakdown');
+        lines.push(`Eligible: ${el('bElig').textContent}`);
+        lines.push(`Discount: ${el('bDisc').textContent}`);
+        lines.push(`Eligible After: ${el('bEligAfter').textContent}`);
+        lines.push(`No-Discount: ${el('bNoDisc').textContent}`);
+        lines.push(`Accessories Subtotal: ${el('bAccSub').textContent}`);
+        lines.push(`Accessory Tax: ${el('bAccTax').textContent}`);
+        lines.push(`Accessory Due Today: ${el('bAccTotal').textContent}`);
+        lines.push('');
+      }
+      if (devBreak.style.display!=='none'){
+        lines.push('Device Breakdown');
+        lines.push(`Retail: ${el('dRetail').textContent}`);
+        lines.push(`Down: ${el('dDown').textContent}`);
+        lines.push(`Balance: ${el('dBal').textContent}`);
+        lines.push(`Monthly: ${el('dMonthly').textContent}`);
+        lines.push(`Device Tax: ${el('dTax').textContent}`);
+        lines.push(`Device Due Today: ${el('dDue').textContent}`);
+        lines.push(`Device Pay in Full: ${el('dFull').textContent}`);
+        if (el('dCombinedRow1').style.display!=='none') lines.push(`Combined Due Today: ${el('dDueCombined').textContent}`);
+        if (el('dCombinedRow2').style.display!=='none') lines.push(`Combined Pay in Full: ${el('dFullCombined').textContent}`);
+      }
+      const text = lines.join('\n').trim();
+      navigator.clipboard.writeText(text).then(()=>{
+        el('copyBtn').textContent='Copied!';
+        setTimeout(()=>el('copyBtn').textContent='Copy Summary', 1000);
+      }).catch(()=>{});
+    });
 
-      if (!isFinite(taxRate) || taxRate < 0 || taxRate > 100){
+    function calculate(userInitiated){
+      clearError();
+
+      const t = parseFloat(taxRate.value||'0');
+      if (!isFinite(t) || t<0 || t>100){
         showError('Tax rate must be between 0% and 100%.');
-        results.classList.remove('active');
-        return false;
+        return;
       }
 
-      try { localStorage.setItem('dpc_taxRate', taxRate.toString()); } catch(e){}
+      // accessories
+      const elig = round2(parseMoney(accEligible));
+      const nod  = round2(parseMoney(accNoDisc));
+      const discount = (aarpUsaa.checked && elig>0) ? round2(elig*DISCOUNT) : 0;
+      const eligAfter = round2(elig - discount);
+      const accSub = round2(eligAfter + nod);
+      const accTax = round2(accSub * (t/100));
+      const accDue = round2(accSub + accTax);
 
-      // PHONE TAB
-      if (currentTab === 'phone'){
-        const retailRaw = round2(parseMoney(document.getElementById('retailPricePhone').value));
-        if (retailRaw <= 0){
-          if (userInitiated) showError('Enter a phone retail price.');
-          results.classList.remove('active');
-          return false;
-        }
+      // show accessory quote even if device not entered
+      if (elig>0 || nod>0){
+        quoteTitle.style.display='block';
+        quoteTitle.textContent = 'Accessory Quote';
+        quoteCards.style.display='grid';
 
-        const retail = Math.round(retailRaw);
-        if (userInitiated) document.getElementById('retailPricePhone').value = retail.toString();
+        leftTitle.textContent = 'Accessory Total Today';
+        rightTitle.textContent = 'Accessory Due Today';
+        leftVal.textContent = money(accDue);
+        rightVal.textContent = money(accDue);
+        leftSub.textContent = 'Accessories + tax';
+        rightSub.textContent = 'Accessories + tax';
 
-        const deviceTax = round2(retail * (taxRate / 100));
-        const down = phoneDownPayment(retail);
-        const balance = retail - down;
-        const monthly = balance / TERM;
-
-        deviceCards.style.display = 'block';
-        headline.textContent = "Phone Payment Quote";
-
-        titlePayFull.textContent = "Pay in Full Today";
-        titleDueToday.textContent = "Due Today";
-        payFullSub.textContent = "Device + tax";
-        dueSub.textContent = "Down + device tax";
-
-        document.getElementById('payFullToday').textContent = money(retail + deviceTax);
-        document.getElementById('dueToday').textContent = money(down + deviceTax);
-        document.getElementById('infoMonthly').textContent = money(monthly);
-        document.getElementById('infoBalance').textContent = money(balance);
-        document.getElementById('infoDown').textContent = money(down);
-        document.getElementById('deviceTax').textContent = money(deviceTax);
-        document.getElementById('downSub').textContent = "Auto";
-
-        results.classList.add('active');
-        return true;
+        // accessory breakdown
+        accBreak.style.display='block';
+        el('bElig').textContent = money(elig);
+        el('bDisc').textContent = money(discount);
+        el('bEligAfter').textContent = money(eligAfter);
+        el('bNoDisc').textContent = money(nod);
+        el('bAccSub').textContent = money(accSub);
+        el('bAccTax').textContent = money(accTax);
+        el('bAccTotal').textContent = money(accDue);
+      } else {
+        // hide accessory outputs if nothing entered
+        accBreak.style.display='none';
       }
 
-      // WATCH TAB
-      if (currentTab === 'watch'){
-        const retailRaw = round2(parseMoney(document.getElementById('retailPriceWatch').value));
-        if (retailRaw <= 0){
-          if (userInitiated) showError('Enter a watch retail price.');
-          results.classList.remove('active');
-          return false;
-        }
+      // device section only if combine checked + device price entered
+      if (!combineDevice.checked){
+        devBreak.style.display='none';
+        return;
+      }
 
-        const retail = round2(retailRaw);
-        if (userInitiated) document.getElementById('retailPriceWatch').value = retail.toFixed(2);
+      const rRaw = round2(parseMoney(deviceRetail));
+      if (rRaw <= 0){
+        // combine checked but no device: still allow accessory-only
+        devBreak.style.display='none';
+        return;
+      }
 
-        const deviceTax = round2(retail * (taxRate / 100));
-        const down = 0;
-        const balance = retail;
-        const monthly = ceil2(balance / TERM);
+      let retail = rRaw;
+      let down=0, monthly=0, balance=0, noteText='';
 
-        const monthlyTotal = round2(monthly * TERM);
-        const diff = round2(monthlyTotal - retail);
+      if (deviceType === 'phone'){
+        retail = Math.round(retail);
+        if (userInitiated) deviceRetail.value = retail.toString();
+        down = phoneDown(retail);
+        balance = retail - down;
+        monthly = balance / TERM;
+      } else {
+        retail = round2(retail);
+        if (userInitiated) deviceRetail.value = retail.toFixed(2);
+        down = 0;
+        balance = retail;
+        monthly = ceil2(balance / TERM);
+
+        const shown = round2(monthly * TERM);
+        const diff = round2(shown - retail);
         if (diff >= 0.01){
-          roundingNoteDiv.style.display = 'block';
-          roundingNoteDiv.innerHTML =
-            `Monthly is rounded up to the nearest cent. The last payment is adjusted by <b>${money(diff)}</b> so the total matches retail.`;
-        }
-
-        deviceCards.style.display = 'block';
-        headline.textContent = "Watch Payment Quote";
-
-        titlePayFull.textContent = "Pay in Full Today";
-        titleDueToday.textContent = "Due Today";
-        payFullSub.textContent = "Device + tax";
-        dueSub.textContent = "Device tax";
-
-        document.getElementById('payFullToday').textContent = money(retail + deviceTax);
-        document.getElementById('dueToday').textContent = money(deviceTax);
-        document.getElementById('infoMonthly').textContent = money(monthly);
-        document.getElementById('infoBalance').textContent = money(balance);
-        document.getElementById('infoDown').textContent = money(0);
-        document.getElementById('deviceTax').textContent = money(deviceTax);
-        document.getElementById('downSub').textContent = "0";
-
-        results.classList.add('active');
-        return true;
-      }
-
-      // ACCESSORIES TAB
-      if (currentTab === 'accessories'){
-        const eligibleSub = round2(parseMoney(document.getElementById('accEligible').value));
-        const noDiscSub = round2(parseMoney(document.getElementById('accNoDisc').value));
-        const aarp = document.getElementById('aarpUsaa').checked;
-
-        const disc = (aarp && eligibleSub > 0) ? round2(eligibleSub * DISCOUNT_RATE) : 0;
-        const eligibleAfter = round2(eligibleSub - disc);
-        const accessoriesTotal = round2(eligibleAfter + noDiscSub);
-        const accessoryTax = round2(accessoriesTotal * (taxRate / 100));
-        const accessoriesDueToday = round2(accessoriesTotal + accessoryTax);
-
-        const combineDevice = combineWithDevice.checked;
-        let deviceRetailRaw = 0;
-        if (combineDevice){
-          deviceRetailRaw = round2(parseMoney(document.getElementById('retailPriceAcc').value));
-        }
-
-        const deviceEnabled = deviceRetailRaw > 0;
-
-        if (!deviceEnabled && accessoriesTotal <= 0){
-          if (userInitiated) showError('Enter accessory amounts or enable device combination.');
-          results.classList.remove('active');
-          return false;
-        }
-
-        // Show breakdown
-        accBreakdown.style.display = 'block';
-        document.getElementById('breakEligible').textContent = money(eligibleSub);
-        document.getElementById('breakDiscount').textContent = disc > 0 ? `−${money(disc)}` : '$0.00';
-        document.getElementById('breakEligibleAfter').textContent = money(eligibleAfter);
-        document.getElementById('breakNoDisc').textContent = money(noDiscSub);
-        document.getElementById('breakSubtotal').textContent = money(accessoriesTotal);
-        document.getElementById('breakTax').textContent = money(accessoryTax);
-        document.getElementById('breakTotal').textContent = money(accessoriesDueToday);
-
-        // Accessories only
-        if (!deviceEnabled){
-          deviceCards.style.display = 'none';
-          headline.textContent = "Accessory Quote";
-
-          titlePayFull.textContent = "Accessory Total Today";
-          titleDueToday.textContent = "Accessory Due Today";
-          payFullSub.textContent = "Accessories + tax";
-          dueSub.textContent = "Accessories + tax";
-
-          document.getElementById('payFullToday').textContent = money(accessoriesDueToday);
-          document.getElementById('dueToday').textContent = money(accessoriesDueToday);
-
-          results.classList.add('active');
-          return true;
-        }
-
-        // Combined with device
-        deviceCards.style.display = 'block';
-
-        let retail = deviceRetailRaw;
-        const deviceType = accDeviceType;
-
-        if (deviceType === 'phone'){
-          retail = Math.round(retail);
-          if (userInitiated) document.getElementById('retailPriceAcc').value = retail.toString();
-        } else {
-          retail = round2(retail);
-          if (userInitiated) document.getElementById('retailPriceAcc').value = retail.toFixed(2);
-        }
-
-        const deviceTax = round2(retail * (taxRate / 100));
-        let down = 0, balance = 0, monthly = 0;
-
-        if (deviceType === 'watch'){
-          down = 0;
-          balance = retail;
-          monthly = ceil2(balance / TERM);
-
-          const monthlyTotal = round2(monthly * TERM);
-          const diff = round2(monthlyTotal - retail);
-          if (diff >= 0.01){
-            roundingNoteDiv.style.display = 'block';
-            roundingNoteDiv.innerHTML =
-              `Monthly is rounded up to the nearest cent. The last payment is adjusted by <b>${money(diff)}</b> so the total matches retail.`;
-          }
-          document.getElementById('downSub').textContent = "0";
-        } else {
-          down = phoneDownPayment(retail);
-          balance = retail - down;
-          monthly = balance / TERM;
-          document.getElementById('downSub').textContent = "Auto";
-        }
-
-        const devicePayFull = round2(retail + deviceTax);
-        const deviceDueToday = round2(down + deviceTax);
-
-        const addToDue = document.getElementById('addAccToDue').checked;
-        const addToFull = document.getElementById('addAccToFull').checked;
-
-        const payFullToday = addToFull ? round2(devicePayFull + accessoriesDueToday) : devicePayFull;
-        const dueToday = addToDue ? round2(deviceDueToday + accessoriesDueToday) : deviceDueToday;
-
-        const deviceName = deviceType === 'phone' ? 'Phone' : 'Watch';
-        headline.textContent = `Accessories + ${deviceName} Quote`;
-
-        titlePayFull.textContent = "Pay in Full Today";
-        titleDueToday.textContent = "Due Today";
-        payFullSub.textContent = addToFull ? "Device + tax + accessories" : "Device + tax";
-        dueSub.textContent = addToDue ? "Down + device tax + accessories" : "Down + device tax";
-
-        document.getElementById('payFullToday').textContent = money(payFullToday);
-        document.getElementById('dueToday').textContent = money(dueToday);
-        document.getElementById('infoMonthly').textContent = money(monthly);
-        document.getElementById('infoBalance').textContent = money(balance);
-        document.getElementById('infoDown').textContent = money(down);
-        document.getElementById('deviceTax').textContent = money(deviceTax);
-
-        results.classList.add('active');
-        return true;
-      }
-
-      return false;
-    }
-
-    function resetAll(){
-      document.getElementById('retailPricePhone').value = "";
-      document.getElementById('retailPriceWatch').value = "";
-      document.getElementById('retailPriceAcc').value = "";
-      document.getElementById('accEligible').value = "";
-      document.getElementById('accNoDisc').value = "";
-      document.getElementById('aarpUsaa').checked = false;
-      document.getElementById('addAccToDue').checked = false;
-      document.getElementById('addAccToFull').checked = false;
-      combineWithDevice.checked = false;
-      deviceSection.classList.remove('active');
-
-      try {
-        const savedTax = localStorage.getItem('dpc_taxRate');
-        const taxVal = savedTax ? savedTax : "8.9";
-        document.getElementById('taxRatePhone').value = taxVal;
-        document.getElementById('taxRateWatch').value = taxVal;
-        document.getElementById('taxRateAcc').value = taxVal;
-      } catch(e){
-        document.getElementById('taxRatePhone').value = "8.9";
-        document.getElementById('taxRateWatch').value = "8.9";
-        document.getElementById('taxRateAcc').value = "8.9";
-      }
-
-      switchTab('phone');
-      results.classList.remove('active');
-      clearError();
-      roundingNoteDiv.style.display = 'none';
-      copyBtn.textContent = "Copy Summary";
-      deviceCards.style.display = 'block';
-      accBreakdown.style.display = 'none';
-    }
-
-    async function copySummary(){
-      const calcSuccess = calculate(true);
-      if (!calcSuccess) return;
-
-      let text = '';
-
-      if (currentTab === 'phone'){
-        const retail = Math.round(parseMoney(document.getElementById('retailPricePhone').value));
-        const taxRate = parseFloat(document.getElementById('taxRatePhone').value);
-        const deviceTax = round2(retail * (taxRate / 100));
-        const down = phoneDownPayment(retail);
-        const balance = retail - down;
-        const monthly = balance / TERM;
-
-        text = `Phone Payment Quote\nRetail: ${money(retail)}\nTax rate: ${taxRate.toFixed(2)}%\nDevice tax: ${money(deviceTax)}\nDown: ${money(down)}\nMonthly: ${money(monthly)} x 24\nBalance: ${money(balance)}\n\nPay in full today: ${money(retail + deviceTax)}\nDue today: ${money(down + deviceTax)}\n`;
-      }
-      else if (currentTab === 'watch'){
-        const retail = round2(parseMoney(document.getElementById('retailPriceWatch').value));
-        const taxRate = parseFloat(document.getElementById('taxRateWatch').value);
-        const deviceTax = round2(retail * (taxRate / 100));
-        const monthly = ceil2(retail / TERM);
-
-        text = `Watch Payment Quote\nRetail: ${money(retail)}\nTax rate: ${taxRate.toFixed(2)}%\nDevice tax: ${money(deviceTax)}\nDown: $0.00\nMonthly: ${money(monthly)} x 24\nBalance: ${money(retail)}\n\nPay in full today: ${money(retail + deviceTax)}\nDue today: ${money(deviceTax)}\n`;
-      }
-      else {
-        const eligibleSub = round2(parseMoney(document.getElementById('accEligible').value));
-        const noDiscSub = round2(parseMoney(document.getElementById('accNoDisc').value));
-        const aarp = document.getElementById('aarpUsaa').checked;
-        const taxRate = parseFloat(document.getElementById('taxRateAcc').value);
-
-        const disc = (aarp && eligibleSub > 0) ? round2(eligibleSub * DISCOUNT_RATE) : 0;
-        const eligibleAfter = round2(eligibleSub - disc);
-        const accessoriesTotal = round2(eligibleAfter + noDiscSub);
-        const accessoryTax = round2(accessoriesTotal * (taxRate / 100));
-        const accessoriesDueToday = round2(accessoriesTotal + accessoryTax);
-
-        text = `Accessory Summary\nEligible subtotal: ${money(eligibleSub)}\nNo-discount subtotal: ${money(noDiscSub)}\nAARP/USAA: ${aarp ? 'Yes' : 'No'}\nDiscount: ${money(disc)}\nAccessories total: ${money(accessoriesTotal)}\nAccessory tax: ${money(accessoryTax)}\nAccessories due today: ${money(accessoriesDueToday)}\n\n`;
-
-        if (combineWithDevice.checked && parseMoney(document.getElementById('retailPriceAcc').value) > 0){
-          const retailRaw = round2(parseMoney(document.getElementById('retailPriceAcc').value));
-          const deviceType = accDeviceType;
-          let retail = deviceType === 'phone' ? Math.round(retailRaw) : round2(retailRaw);
-
-          const deviceTax = round2(retail * (taxRate / 100));
-          let down = 0, balance = 0, monthly = 0;
-
-          if (deviceType === 'watch'){
-            down = 0;
-            balance = retail;
-            monthly = ceil2(balance / TERM);
-          } else {
-            down = phoneDownPayment(retail);
-            balance = retail - down;
-            monthly = balance / TERM;
-          }
-
-          const devicePayFull = round2(retail + deviceTax);
-          const deviceDueToday = round2(down + deviceTax);
-          const addToDue = document.getElementById('addAccToDue').checked;
-          const addToFull = document.getElementById('addAccToFull').checked;
-
-          const payFullToday = addToFull ? round2(devicePayFull + accessoriesDueToday) : devicePayFull;
-          const dueToday = addToDue ? round2(deviceDueToday + accessoriesDueToday) : deviceDueToday;
-
-          text += `Device Summary\nType: ${deviceType === 'watch' ? 'Watch' : 'Phone'}\nRetail: ${money(retail)}\nTax rate: ${taxRate.toFixed(2)}%\nDevice tax: ${money(deviceTax)}\nDown: ${money(down)}\nMonthly (device only): ${money(monthly)} x 24\nBalance (device only): ${money(balance)}\n\nAdd accessories to Due Today: ${addToDue ? 'Yes' : 'No'}\nAdd accessories to Pay in Full: ${addToFull ? 'Yes' : 'No'}\nPay in full today: ${money(payFullToday)}\nDue today: ${money(dueToday)}\n`;
-        } else {
-          text += `MODE: Accessory-only\nTotal today: ${money(accessoriesDueToday)}\n`;
+          noteText = `Monthly rounds up to the nearest cent. Last payment adjusts by ${money(diff)} to match retail.`;
         }
       }
 
-      try{
-        await navigator.clipboard.writeText(text);
-        copyBtn.textContent = "✓ Copied!";
-        setTimeout(() => copyBtn.textContent = "Copy Summary", 1400);
-      }catch(e){
-        prompt("Copy this summary:", text);
+      const devTax = round2(retail * (t/100));
+      const devDue = round2(down + devTax);
+      const devFull = round2(retail + devTax);
+
+      // combined if checkboxes checked and accessories exist
+      const combinedDue = addAccToDue.checked ? round2(devDue + accDue) : devDue;
+      const combinedFull = addAccToFull.checked ? round2(devFull + accDue) : devFull;
+
+      devBreak.style.display='block';
+
+      el('dRetail').textContent = money(retail);
+      el('dDown').textContent = money(down);
+      el('dBal').textContent = money(balance);
+      el('dMonthly').textContent = money(monthly);
+      el('dTax').textContent = money(devTax);
+      el('dDue').textContent = money(devDue);
+      el('dFull').textContent = money(devFull);
+
+      // show combined rows only if accessories are present and the corresponding checkbox is checked
+      const hasAcc = (elig>0 || nod>0);
+      el('dCombinedRow1').style.display = (hasAcc && addAccToDue.checked) ? 'flex' : 'none';
+      el('dCombinedRow2').style.display = (hasAcc && addAccToFull.checked) ? 'flex' : 'none';
+      el('dDueCombined').textContent = money(combinedDue);
+      el('dFullCombined').textContent = money(combinedFull);
+
+      // note row
+      if (noteText){
+        el('dNote').style.display='flex';
+        el('dNoteText').textContent = noteText;
+      } else {
+        el('dNote').style.display='none';
       }
     }
 
-    // Events
-    phoneBtn.addEventListener('click', (e) => { e.preventDefault(); switchTab('phone'); });
-    watchBtn.addEventListener('click', (e) => { e.preventDefault(); switchTab('watch'); });
-    accBtn.addEventListener('click', (e) => { e.preventDefault(); switchTab('accessories'); });
-
-    devicePhoneBtn.addEventListener('click', (e) => { e.preventDefault(); setAccDeviceType('phone'); });
-    deviceWatchBtn.addEventListener('click', (e) => { e.preventDefault(); setAccDeviceType('watch'); });
-
-    combineWithDevice.addEventListener('change', () => {
-      deviceSection.classList.toggle('active', combineWithDevice.checked);
-      scheduleAutoCalc();
+    // theme button (simple invert)
+    el('themeBtn').addEventListener('click', ()=>{
+      document.body.classList.toggle('dark-mode');
+      el('themeBtn').textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
     });
 
-    calcBtn.addEventListener('click', (e) => { e.preventDefault(); calculate(true); });
-    copyBtn.addEventListener('click', (e) => { e.preventDefault(); copySummary(); });
-    resetBtn.addEventListener('click', (e) => { e.preventDefault(); resetAll(); });
-    themeToggle.addEventListener('click', (e) => { e.preventDefault(); toggleTheme(); });
-
-    // Auto-calc
-    const allMoneyInputs = [
-      'retailPricePhone', 'retailPriceWatch', 'retailPriceAcc',
-      'accEligible', 'accNoDisc'
-    ];
-    
-    allMoneyInputs.forEach(id => {
-      const el = document.getElementById(id);
-      el.addEventListener('input', () => { sanitizeMoneyInput(el); scheduleAutoCalc(); });
-      el.addEventListener('blur', () => calculate(false));
-    });
-
-    const allTaxInputs = ['taxRatePhone', 'taxRateWatch', 'taxRateAcc'];
-    allTaxInputs.forEach(id => {
-      const el = document.getElementById(id);
-      el.addEventListener('input', scheduleAutoCalc);
-      el.addEventListener('change', scheduleAutoCalc);
-      el.addEventListener('blur', () => calculate(false));
-    });
-
-    const allCheckboxes = ['aarpUsaa', 'addAccToDue', 'addAccToFull'];
-    allCheckboxes.forEach(id => {
-      const el = document.getElementById(id);
-      el.addEventListener('input', scheduleAutoCalc);
-      el.addEventListener('change', scheduleAutoCalc);
-    });
-
-    window.addEventListener('load', () => {
-      try{
-        const savedTheme = localStorage.getItem('dpc_theme');
-        if (savedTheme === 'dark') { document.body.classList.add('dark-mode'); themeToggle.textContent = '☀️'; }
-
-        const savedTax = localStorage.getItem('dpc_taxRate');
-        if (savedTax) {
-          document.getElementById('taxRatePhone').value = savedTax;
-          document.getElementById('taxRateWatch').value = savedTax;
-          document.getElementById('taxRateAcc').value = savedTax;
-        }
-
-        const savedTab = localStorage.getItem('dpc_currentTab');
-        if (savedTab && ['phone', 'watch', 'accessories'].includes(savedTab)){
-          switchTab(savedTab);
-        }
-      }catch(e){}
-    });
   </script>
 </body>
 </html>
