@@ -128,7 +128,7 @@
     input[type="text"], input[type="number"]{
       width:100%;
       padding:12px 12px 12px 34px;
-      font-size:16px; /* avoids iOS zoom */
+      font-size:16px;
       border:2px solid var(--border);
       border-radius:12px;
       outline:none;
@@ -174,25 +174,24 @@
       color:var(--text);
     }
 
-    .deviceType{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-      margin-top:8px;
-    }
-    .dtypeBtn{
+    .deviceCard{
       border:2px solid var(--border);
-      border-radius:12px;
+      border-radius:14px;
+      padding:12px;
+      margin-top:10px;
       background:transparent;
-      color:var(--text);
-      font-weight:900;
-      cursor:pointer;
-      min-height:44px;
     }
-    .dtypeBtn.active{
-      border-color:var(--accent);
-      background:linear-gradient(135deg,var(--bg1) 0%,var(--bg2) 100%);
-      color:#fff;
+    .deviceHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:10px;
+    }
+    .deviceHead strong{
+      font-size:14px;
+      color:var(--text);
     }
 
     .btnRow{
@@ -343,11 +342,10 @@
     <div class="top">
       <button class="themeBtn" id="themeBtn" type="button" title="Toggle theme">🌙</button>
       <h1>Device Payment Calculator</h1>
-      <p>Unified quote: Accessories always stay separate (not financed). You can optionally include accessories in device totals.</p>
+      <p>Quote accessories, phone only, watch only, or phone + watch together. Accessories always stay separate from financing, but you can optionally add them into the quote totals.</p>
     </div>
 
     <div class="card">
-      <!-- ACCESSORIES -->
       <div class="section">
         <div class="sectionTitle">
           <span>Accessories</span>
@@ -379,47 +377,54 @@
         </div>
       </div>
 
-      <!-- DEVICE -->
       <div class="section">
         <div class="sectionTitle">
-          <span>Device</span>
-          <small>Optional — leave blank for accessory-only quote</small>
+          <span>Devices</span>
+          <small>Add phone, watch, or both</small>
         </div>
 
-        <div class="toggleLine">
-          <label style="display:flex; gap:10px; align-items:center;">
-            <input type="checkbox" id="enableDevice" />
-            Add device to this quote
-          </label>
-        </div>
-
-        <div id="deviceArea" style="display:none; margin-top:10px;">
-          <div class="deviceType">
-            <button class="dtypeBtn active" id="devPhone" type="button">📱 Phone</button>
-            <button class="dtypeBtn" id="devWatch" type="button">⌚ Watch</button>
+        <div class="deviceCard">
+          <div class="deviceHead">
+            <strong>📱 Phone</strong>
+            <label><input type="checkbox" id="enablePhone" /> Add phone to this quote</label>
           </div>
 
-          <div style="margin-top:10px;">
-            <div class="label">Device Retail Price</div>
+          <div id="phoneArea" style="display:none;">
+            <div class="label">Phone Retail Price</div>
             <div class="inwrap">
               <span class="prefix">$</span>
-              <input id="deviceRetail" type="text" inputmode="decimal" placeholder="0" />
+              <input id="phoneRetail" type="text" inputmode="decimal" placeholder="0" />
             </div>
-            <div class="help" id="deviceHint">Phone retail rounds to a whole dollar. Watch monthly rounds up to the nearest cent.</div>
+            <div class="help">Phone retail rounds to a whole dollar. Down payment keeps the financed amount on whole-dollar monthly payments.</div>
+          </div>
+        </div>
+
+        <div class="deviceCard">
+          <div class="deviceHead">
+            <strong>⌚ Watch</strong>
+            <label><input type="checkbox" id="enableWatch" /> Add watch to this quote</label>
           </div>
 
-          <div class="row" style="margin-top:10px;">
-            <label><input type="checkbox" id="addAccToDue" /> Include accessories in <b>Device Due Today</b></label>
-            <label><input type="checkbox" id="addAccToFull" /> Include accessories in <b>Device Pay in Full</b></label>
+          <div id="watchArea" style="display:none;">
+            <div class="label">Watch Retail Price</div>
+            <div class="inwrap">
+              <span class="prefix">$</span>
+              <input id="watchRetail" type="text" inputmode="decimal" placeholder="0" />
+            </div>
+            <div class="help">Watch monthly payment rounds up to the nearest cent. The last payment adjusts if needed.</div>
           </div>
+        </div>
+
+        <div class="row" style="margin-top:12px;">
+          <label><input type="checkbox" id="addAccToDue" /> Include accessories in <b>Due Today</b></label>
+          <label><input type="checkbox" id="addAccToFull" /> Include accessories in <b>Pay in Full Today</b></label>
         </div>
       </div>
 
-      <!-- TAX / TERM -->
       <div class="section">
         <div class="sectionTitle">
           <span>Tax & Term</span>
-          <small>Same tax rate applied to device and accessories</small>
+          <small>Same tax rate applied to devices and accessories</small>
         </div>
 
         <div class="grid2">
@@ -448,7 +453,6 @@
 
       <div class="error" id="errBox"></div>
 
-      <!-- SUMMARY -->
       <div class="summary" id="summary">
         <div class="summaryTitle">Quote Summary</div>
 
@@ -477,18 +481,38 @@
           <div class="line total"><span>Accessories Due Today:</span><strong id="bAccDue">$0.00</strong></div>
         </div>
 
-        <div class="breakBox" id="devBreak" style="display:none;">
-          <div class="breakHead">Device Breakdown</div>
-          <div class="line"><span>Device Retail:</span><strong id="dRetail">$0.00</strong></div>
-          <div class="line"><span>Down Payment:</span><strong id="dDown">$0.00</strong></div>
-          <div class="line"><span>Remaining Balance:</span><strong id="dBal">$0.00</strong></div>
-          <div class="line"><span>Monthly Payment (device only):</span><strong id="dMonthly">$0.00</strong></div>
-          <div class="line"><span>Device Tax:</span><strong id="dTax">$0.00</strong></div>
-          <div class="line"><span>Device Due Today:</span><strong id="dDue">$0.00</strong></div>
-          <div class="line"><span>Device Pay in Full:</span><strong id="dFull">$0.00</strong></div>
-          <div class="line" id="dCombRow1" style="display:none;"><span>Combined Due Today:</span><strong id="dDueComb">$0.00</strong></div>
-          <div class="line" id="dCombRow2" style="display:none;"><span>Combined Pay in Full:</span><strong id="dFullComb">$0.00</strong></div>
+        <div class="breakBox" id="phoneBreak" style="display:none;">
+          <div class="breakHead">Phone Breakdown</div>
+          <div class="line"><span>Phone Retail:</span><strong id="pRetail">$0.00</strong></div>
+          <div class="line"><span>Down Payment:</span><strong id="pDown">$0.00</strong></div>
+          <div class="line"><span>Remaining Balance:</span><strong id="pBal">$0.00</strong></div>
+          <div class="line"><span>Monthly Payment (phone only):</span><strong id="pMonthly">$0.00</strong></div>
+          <div class="line"><span>Phone Tax:</span><strong id="pTax">$0.00</strong></div>
+          <div class="line"><span>Phone Due Today:</span><strong id="pDue">$0.00</strong></div>
+          <div class="line total"><span>Phone Pay in Full:</span><strong id="pFull">$0.00</strong></div>
+        </div>
+
+        <div class="breakBox" id="watchBreak" style="display:none;">
+          <div class="breakHead">Watch Breakdown</div>
+          <div class="line"><span>Watch Retail:</span><strong id="wRetail">$0.00</strong></div>
+          <div class="line"><span>Down Payment:</span><strong id="wDown">$0.00</strong></div>
+          <div class="line"><span>Remaining Balance:</span><strong id="wBal">$0.00</strong></div>
+          <div class="line"><span>Monthly Payment (watch only):</span><strong id="wMonthly">$0.00</strong></div>
+          <div class="line"><span>Watch Tax:</span><strong id="wTax">$0.00</strong></div>
+          <div class="line"><span>Watch Due Today:</span><strong id="wDue">$0.00</strong></div>
+          <div class="line total"><span>Watch Pay in Full:</span><strong id="wFull">$0.00</strong></div>
           <div class="note" id="watchNote"></div>
+        </div>
+
+        <div class="breakBox" id="comboBreak" style="display:none;">
+          <div class="breakHead">Combined Device Totals</div>
+          <div class="line"><span>Devices Added:</span><strong id="cCount">0</strong></div>
+          <div class="line"><span>Total Monthly Payment (devices only):</span><strong id="cMonthly">$0.00</strong></div>
+          <div class="line"><span>Total Device Tax:</span><strong id="cTax">$0.00</strong></div>
+          <div class="line"><span>Devices Due Today:</span><strong id="cDue">$0.00</strong></div>
+          <div class="line"><span>Devices Pay in Full:</span><strong id="cFull">$0.00</strong></div>
+          <div class="line" id="cDueWithAccRow" style="display:none;"><span>Due Today + Accessories:</span><strong id="cDueWithAcc">$0.00</strong></div>
+          <div class="line total" id="cFullWithAccRow" style="display:none;"><span>Pay in Full + Accessories:</span><strong id="cFullWithAcc">$0.00</strong></div>
         </div>
       </div>
     </div>
@@ -501,27 +525,26 @@
     const $ = (id)=>document.getElementById(id);
 
     const accEligible = $('accEligible');
-    const accNoDisc   = $('accNoDisc');
-    const aarpUsaa    = $('aarpUsaa');
+    const accNoDisc = $('accNoDisc');
+    const aarpUsaa = $('aarpUsaa');
 
-    const enableDevice = $('enableDevice');
-    const deviceArea   = $('deviceArea');
-    const deviceRetail = $('deviceRetail');
-    const addAccToDue  = $('addAccToDue');
+    const enablePhone = $('enablePhone');
+    const enableWatch = $('enableWatch');
+    const phoneArea = $('phoneArea');
+    const watchArea = $('watchArea');
+    const phoneRetail = $('phoneRetail');
+    const watchRetail = $('watchRetail');
+    const addAccToDue = $('addAccToDue');
     const addAccToFull = $('addAccToFull');
 
-    const devPhoneBtn = $('devPhone');
-    const devWatchBtn = $('devWatch');
-    const deviceHint  = $('deviceHint');
-
     const taxRate = $('taxRate');
-
     const errBox = $('errBox');
     const summary = $('summary');
-    const devBreak = $('devBreak');
+    const phoneBreak = $('phoneBreak');
+    const watchBreak = $('watchBreak');
+    const comboBreak = $('comboBreak');
     const watchNote = $('watchNote');
 
-    let deviceType = 'phone';
     let timer = null;
 
     function money(n){
@@ -547,10 +570,10 @@
       if (firstDot !== -1){
         cleaned = cleaned.slice(0, firstDot+1) + cleaned.slice(firstDot+1).replace(/\./g,'');
       }
+      const parts = cleaned.split('.');
+      if (parts.length === 2) cleaned = parts[0] + '.' + parts[1].slice(0,2);
       if (cleaned !== raw){
-        const pos = input.selectionStart || cleaned.length;
         input.value = cleaned;
-        try{ input.setSelectionRange(pos, pos); }catch(e){}
       }
     }
     function parseMoney(input){
@@ -567,66 +590,58 @@
 
     function scheduleCalc(){
       if (timer) clearTimeout(timer);
-      timer = setTimeout(()=>calculate(false), 250);
+      timer = setTimeout(()=>calculate(false), 200);
     }
 
-    function setDeviceType(t){
-      deviceType = t;
-      devPhoneBtn.classList.toggle('active', t==='phone');
-      devWatchBtn.classList.toggle('active', t==='watch');
-      deviceHint.textContent =
-        t==='phone'
-          ? 'Phone retail rounds to a whole dollar.'
-          : 'Watch monthly rounds up to the nearest cent.';
-      scheduleCalc();
-    }
-
-    enableDevice.addEventListener('change', ()=>{
-      deviceArea.style.display = enableDevice.checked ? 'block' : 'none';
-      if (!enableDevice.checked){
-        devBreak.style.display = 'none';
-        addAccToDue.checked = false;
-        addAccToFull.checked = false;
-        deviceRetail.value = '';
-      }
-      scheduleCalc();
-    });
-
-    devPhoneBtn.addEventListener('click', ()=>setDeviceType('phone'));
-    devWatchBtn.addEventListener('click', ()=>setDeviceType('watch'));
-
-    [accEligible, accNoDisc, deviceRetail].forEach(inp=>{
-      inp.addEventListener('input', ()=>{
-        sanitizeMoneyInput(inp);
+    function bindMoneyInput(input){
+      input.addEventListener('input', ()=>{
+        sanitizeMoneyInput(input);
         scheduleCalc();
       });
-      inp.addEventListener('blur', scheduleCalc);
-    });
+      input.addEventListener('blur', scheduleCalc);
+    }
 
+    function updatePhoneArea(){
+      phoneArea.style.display = enablePhone.checked ? 'block' : 'none';
+      if (!enablePhone.checked) phoneRetail.value = '';
+      scheduleCalc();
+    }
+
+    function updateWatchArea(){
+      watchArea.style.display = enableWatch.checked ? 'block' : 'none';
+      if (!enableWatch.checked) watchRetail.value = '';
+      scheduleCalc();
+    }
+
+    enablePhone.addEventListener('change', updatePhoneArea);
+    enableWatch.addEventListener('change', updateWatchArea);
+
+    [accEligible, accNoDisc, phoneRetail, watchRetail].forEach(bindMoneyInput);
     taxRate.addEventListener('input', scheduleCalc);
     taxRate.addEventListener('blur', scheduleCalc);
-
-    [aarpUsaa, addAccToDue, addAccToFull].forEach(chk=>{
-      chk.addEventListener('change', scheduleCalc);
-    });
+    [aarpUsaa, addAccToDue, addAccToFull].forEach(chk=>chk.addEventListener('change', scheduleCalc));
 
     $('calcBtn').addEventListener('click', ()=>calculate(true));
 
     $('resetBtn').addEventListener('click', ()=>{
-      accEligible.value=''; accNoDisc.value='';
+      accEligible.value='';
+      accNoDisc.value='';
       aarpUsaa.checked=false;
       taxRate.value='8.9';
 
-      enableDevice.checked=false;
-      deviceArea.style.display='none';
-      deviceRetail.value='';
+      enablePhone.checked=false;
+      enableWatch.checked=false;
+      phoneRetail.value='';
+      watchRetail.value='';
+      phoneArea.style.display='none';
+      watchArea.style.display='none';
       addAccToDue.checked=false;
       addAccToFull.checked=false;
 
-      setDeviceType('phone');
-
       summary.classList.remove('active');
-      devBreak.style.display='none';
+      phoneBreak.style.display='none';
+      watchBreak.style.display='none';
+      comboBreak.style.display='none';
       watchNote.style.display='none';
       clearError();
     });
@@ -637,7 +652,10 @@
         lines.push('Quote Summary');
         lines.push(`Due Today: ${$('qDue').textContent}`);
         lines.push(`Pay in Full Today: ${$('qFull').textContent}`);
+        lines.push(`Due Today Note: ${$('qDueSub').textContent}`);
+        lines.push(`Pay in Full Note: ${$('qFullSub').textContent}`);
         lines.push('');
+
         lines.push('Accessories');
         lines.push(`Eligible: ${$('bElig').textContent}`);
         lines.push(`Discount: ${$('bDisc').textContent}`);
@@ -646,20 +664,45 @@
         lines.push(`Accessories Subtotal: ${$('bAccSub').textContent}`);
         lines.push(`Accessory Tax: ${$('bAccTax').textContent}`);
         lines.push(`Accessories Due Today: ${$('bAccDue').textContent}`);
-        if (devBreak.style.display !== 'none'){
+
+        if (phoneBreak.style.display !== 'none'){
           lines.push('');
-          lines.push('Device');
-          lines.push(`Retail: ${$('dRetail').textContent}`);
-          lines.push(`Down: ${$('dDown').textContent}`);
-          lines.push(`Balance: ${$('dBal').textContent}`);
-          lines.push(`Monthly: ${$('dMonthly').textContent}`);
-          lines.push(`Device Tax: ${$('dTax').textContent}`);
-          lines.push(`Device Due Today: ${$('dDue').textContent}`);
-          lines.push(`Device Pay in Full: ${$('dFull').textContent}`);
-          if ($('dCombRow1').style.display !== 'none') lines.push(`Combined Due Today: ${$('dDueComb').textContent}`);
-          if ($('dCombRow2').style.display !== 'none') lines.push(`Combined Pay in Full: ${$('dFullComb').textContent}`);
+          lines.push('Phone');
+          lines.push(`Retail: ${$('pRetail').textContent}`);
+          lines.push(`Down: ${$('pDown').textContent}`);
+          lines.push(`Balance: ${$('pBal').textContent}`);
+          lines.push(`Monthly: ${$('pMonthly').textContent}`);
+          lines.push(`Tax: ${$('pTax').textContent}`);
+          lines.push(`Due Today: ${$('pDue').textContent}`);
+          lines.push(`Pay in Full: ${$('pFull').textContent}`);
+        }
+
+        if (watchBreak.style.display !== 'none'){
+          lines.push('');
+          lines.push('Watch');
+          lines.push(`Retail: ${$('wRetail').textContent}`);
+          lines.push(`Down: ${$('wDown').textContent}`);
+          lines.push(`Balance: ${$('wBal').textContent}`);
+          lines.push(`Monthly: ${$('wMonthly').textContent}`);
+          lines.push(`Tax: ${$('wTax').textContent}`);
+          lines.push(`Due Today: ${$('wDue').textContent}`);
+          lines.push(`Pay in Full: ${$('wFull').textContent}`);
+          if (watchNote.textContent) lines.push(`Note: ${watchNote.textContent}`);
+        }
+
+        if (comboBreak.style.display !== 'none'){
+          lines.push('');
+          lines.push('Combined Devices');
+          lines.push(`Devices Added: ${$('cCount').textContent}`);
+          lines.push(`Total Monthly: ${$('cMonthly').textContent}`);
+          lines.push(`Total Device Tax: ${$('cTax').textContent}`);
+          lines.push(`Devices Due Today: ${$('cDue').textContent}`);
+          lines.push(`Devices Pay in Full: ${$('cFull').textContent}`);
+          if ($('cDueWithAccRow').style.display !== 'none') lines.push(`Due Today + Accessories: ${$('cDueWithAcc').textContent}`);
+          if ($('cFullWithAccRow').style.display !== 'none') lines.push(`Pay in Full + Accessories: ${$('cFullWithAcc').textContent}`);
         }
       }
+
       const text = lines.join('\n').trim();
       navigator.clipboard.writeText(text).then(()=>{
         $('copyBtn').textContent='Copied!';
@@ -670,23 +713,21 @@
     function calculate(userInitiated){
       clearError();
 
-      const t = parseFloat(taxRate.value||'0');
+      const t = parseFloat(taxRate.value || '0');
       if (!isFinite(t) || t < 0 || t > 100){
         showError('Tax rate must be between 0% and 100%.');
         summary.classList.remove('active');
         return;
       }
 
-      // ----- Accessories -----
       const elig = round2(parseMoney(accEligible));
-      const nod  = round2(parseMoney(accNoDisc));
+      const nod = round2(parseMoney(accNoDisc));
       const disc = (aarpUsaa.checked && elig > 0) ? round2(elig * DISCOUNT) : 0;
       const eligAfter = round2(elig - disc);
       const accSub = round2(eligAfter + nod);
-      const accTax = round2(accSub * (t/100));
+      const accTax = round2(accSub * (t / 100));
       const accDue = round2(accSub + accTax);
 
-      // Update accessory breakdown (always shown once calculated)
       $('bElig').textContent = money(elig);
       $('bDisc').textContent = money(disc);
       $('bEligAfter').textContent = money(eligAfter);
@@ -695,76 +736,75 @@
       $('bAccTax').textContent = money(accTax);
       $('bAccDue').textContent = money(accDue);
 
-      // ----- Device (optional) -----
-      const deviceOn = enableDevice.checked;
-      const rRaw = deviceOn ? round2(parseMoney(deviceRetail)) : 0;
+      const rawPhone = enablePhone.checked ? round2(parseMoney(phoneRetail)) : 0;
+      const rawWatch = enableWatch.checked ? round2(parseMoney(watchRetail)) : 0;
+      const hasPhone = enablePhone.checked && rawPhone > 0;
+      const hasWatch = enableWatch.checked && rawWatch > 0;
+      const hasAcc = accSub > 0;
 
-      // If device is enabled but empty, treat as accessory-only quote (don’t error)
-      const deviceHasPrice = deviceOn && rRaw > 0;
-
-      // Accessory-only totals by default
-      let finalDue = accDue;
-      let finalFull = accDue;
-
-      $('qDueSub').textContent  = (accSub > 0) ? 'Accessories only' : '—';
-      $('qFullSub').textContent = (accSub > 0) ? 'Accessories only' : '—';
-
-      // If nothing at all entered, hide summary
-      if (accSub <= 0 && !deviceHasPrice){
+      if (!hasAcc && !hasPhone && !hasWatch){
         summary.classList.remove('active');
-        devBreak.style.display='none';
+        phoneBreak.style.display = 'none';
+        watchBreak.style.display = 'none';
+        comboBreak.style.display = 'none';
+        watchNote.style.display = 'none';
         return;
       }
 
-      // If device exists, compute device pieces
-      if (deviceHasPrice){
-        let retail = rRaw;
-        let down=0, balance=0, monthly=0, note='';
+      let phone = { retail:0, down:0, balance:0, monthly:0, tax:0, due:0, full:0 };
+      let watch = { retail:0, down:0, balance:0, monthly:0, tax:0, due:0, full:0, note:'' };
 
-        if (deviceType === 'phone'){
-          retail = Math.round(retail);
-          if (userInitiated) deviceRetail.value = retail.toString();
-          down = phoneDown(retail);
-          balance = retail - down;
-          monthly = balance / TERM; // whole dollars by construction
-        } else {
-          retail = round2(retail);
-          if (userInitiated) deviceRetail.value = retail.toFixed(2);
-          down = 0;
-          balance = retail;
-          monthly = ceil2(balance / TERM);
+      if (hasPhone){
+        const retail = Math.round(rawPhone);
+        if (userInitiated) phoneRetail.value = retail.toString();
 
-          const shown = round2(monthly * TERM);
-          const diff = round2(shown - retail);
-          if (diff >= 0.01){
-            note = `Watch monthly is rounded up. Last payment adjusts by ${money(diff)} to match retail.`;
-          }
+        const down = phoneDown(retail);
+        const balance = retail - down;
+        const monthly = balance / TERM;
+        const tax = round2(retail * (t / 100));
+        const due = round2(down + tax);
+        const full = round2(retail + tax);
+
+        phone = { retail, down, balance, monthly, tax, due, full };
+        phoneBreak.style.display = 'block';
+        $('pRetail').textContent = money(retail);
+        $('pDown').textContent = money(down);
+        $('pBal').textContent = money(balance);
+        $('pMonthly').textContent = money(monthly);
+        $('pTax').textContent = money(tax);
+        $('pDue').textContent = money(due);
+        $('pFull').textContent = money(full);
+      } else {
+        phoneBreak.style.display = 'none';
+      }
+
+      if (hasWatch){
+        const retail = round2(rawWatch);
+        if (userInitiated) watchRetail.value = retail.toFixed(2);
+
+        const down = 0;
+        const balance = retail;
+        const monthly = ceil2(balance / TERM);
+        const tax = round2(retail * (t / 100));
+        const due = round2(down + tax);
+        const full = round2(retail + tax);
+
+        let note = '';
+        const shown = round2(monthly * TERM);
+        const diff = round2(shown - retail);
+        if (diff >= 0.01){
+          note = `Watch monthly is rounded up. Last payment adjusts by ${money(diff)} to match retail.`;
         }
 
-        const dTax = round2(retail * (t/100));
-        const dDue = round2(down + dTax);
-        const dFull = round2(retail + dTax);
-
-        // Show device breakdown
-        devBreak.style.display='block';
-        $('dRetail').textContent = money(retail);
-        $('dDown').textContent = money(down);
-        $('dBal').textContent = money(balance);
-        $('dMonthly').textContent = money(monthly);
-        $('dTax').textContent = money(dTax);
-        $('dDue').textContent = money(dDue);
-        $('dFull').textContent = money(dFull);
-
-        // Combined rows only when requested + accessories exist
-        const hasAcc = accSub > 0;
-        const dueCombined = (hasAcc && addAccToDue.checked) ? round2(dDue + accDue) : dDue;
-        const fullCombined = (hasAcc && addAccToFull.checked) ? round2(dFull + accDue) : dFull;
-
-        $('dCombRow1').style.display = (hasAcc && addAccToDue.checked) ? 'flex' : 'none';
-        $('dCombRow2').style.display = (hasAcc && addAccToFull.checked) ? 'flex' : 'none';
-        $('dDueComb').textContent = money(dueCombined);
-        $('dFullComb').textContent = money(fullCombined);
-
+        watch = { retail, down, balance, monthly, tax, due, full, note };
+        watchBreak.style.display = 'block';
+        $('wRetail').textContent = money(retail);
+        $('wDown').textContent = money(down);
+        $('wBal').textContent = money(balance);
+        $('wMonthly').textContent = money(monthly);
+        $('wTax').textContent = money(tax);
+        $('wDue').textContent = money(due);
+        $('wFull').textContent = money(full);
         if (note){
           watchNote.style.display = 'block';
           watchNote.textContent = note;
@@ -772,27 +812,58 @@
           watchNote.style.display = 'none';
           watchNote.textContent = '';
         }
-
-        // FINAL Quote cards:
-        // Due Today = device due (+ accessories if checkbox checked)
-        // Pay in Full Today = device full (+ accessories if checkbox checked)
-        finalDue = dueCombined;
-        finalFull = fullCombined;
-
-        $('qDueSub').textContent  = (hasAcc && addAccToDue.checked) ? 'Device + accessories' : 'Device only';
-        $('qFullSub').textContent = (hasAcc && addAccToFull.checked) ? 'Device + accessories' : 'Device only';
       } else {
-        // Device disabled or no price: hide device breakdown
-        devBreak.style.display='none';
+        watchBreak.style.display = 'none';
+        watchNote.style.display = 'none';
+        watchNote.textContent = '';
+      }
+
+      const deviceCount = (hasPhone ? 1 : 0) + (hasWatch ? 1 : 0);
+      const deviceMonthlyTotal = round2(phone.monthly + watch.monthly);
+      const deviceTaxTotal = round2(phone.tax + watch.tax);
+      const deviceDueTotal = round2(phone.due + watch.due);
+      const deviceFullTotal = round2(phone.full + watch.full);
+
+      const finalDue = round2(deviceDueTotal + ((deviceCount > 0 && hasAcc && addAccToDue.checked) || (deviceCount === 0 && hasAcc) ? accDue : 0));
+      const finalFull = round2(deviceFullTotal + ((deviceCount > 0 && hasAcc && addAccToFull.checked) || (deviceCount === 0 && hasAcc) ? accDue : 0));
+
+      let dueLabel = '—';
+      let fullLabel = '—';
+      if (deviceCount === 0 && hasAcc){
+        dueLabel = 'Accessories only';
+        fullLabel = 'Accessories only';
+      } else {
+        const deviceLabel = hasPhone && hasWatch ? 'Phone + watch' : hasPhone ? 'Phone only' : 'Watch only';
+        dueLabel = (hasAcc && addAccToDue.checked) ? `${deviceLabel} + accessories` : deviceLabel;
+        fullLabel = (hasAcc && addAccToFull.checked) ? `${deviceLabel} + accessories` : deviceLabel;
       }
 
       $('qDue').textContent = money(finalDue);
       $('qFull').textContent = money(finalFull);
+      $('qDueSub').textContent = dueLabel;
+      $('qFullSub').textContent = fullLabel;
+
+      if (deviceCount > 0){
+        comboBreak.style.display = 'block';
+        $('cCount').textContent = deviceCount.toString();
+        $('cMonthly').textContent = money(deviceMonthlyTotal);
+        $('cTax').textContent = money(deviceTaxTotal);
+        $('cDue').textContent = money(deviceDueTotal);
+        $('cFull').textContent = money(deviceFullTotal);
+
+        const dueWithAcc = round2(deviceDueTotal + (hasAcc ? accDue : 0));
+        const fullWithAcc = round2(deviceFullTotal + (hasAcc ? accDue : 0));
+        $('cDueWithAcc').textContent = money(dueWithAcc);
+        $('cFullWithAcc').textContent = money(fullWithAcc);
+        $('cDueWithAccRow').style.display = hasAcc ? 'flex' : 'none';
+        $('cFullWithAccRow').style.display = hasAcc ? 'flex' : 'none';
+      } else {
+        comboBreak.style.display = 'none';
+      }
 
       summary.classList.add('active');
     }
 
-    // Theme toggle
     $('themeBtn').addEventListener('click', ()=>{
       document.body.classList.toggle('dark');
       $('themeBtn').textContent = document.body.classList.contains('dark') ? '☀️' : '🌙';
