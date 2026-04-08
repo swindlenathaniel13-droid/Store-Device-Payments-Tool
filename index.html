@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Device Payment Calculator V3</title>
   <meta name="theme-color" content="#ff6b35" />
+  <meta name="description" content="Mobile-first device payment calculator for accessories, phone quotes, watch quotes, and combined quotes." />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -13,7 +14,7 @@
       <button class="theme-btn" id="themeBtn" type="button" aria-label="Toggle dark mode">🌙</button>
       <h1>Device Payment Calculator</h1>
       <p>Mobile-first quote builder for accessories, phone only, watch only, or phone + watch together.</p>
-      <div class="status-chip" id="quoteMode">Ready to build quote</div>
+      <div class="status-chip" id="quoteMode" role="status" aria-live="polite">Ready to build quote</div>
     </header>
 
     <main class="panel">
@@ -31,7 +32,13 @@
             <label for="accEligible">Eligible Accessories Subtotal</label>
             <div class="input-wrap money-wrap">
               <span class="prefix">$</span>
-              <input id="accEligible" type="text" inputmode="decimal" placeholder="0" />
+              <input
+                id="accEligible"
+                type="text"
+                inputmode="decimal"
+                placeholder="0"
+                autocomplete="off"
+              />
             </div>
             <div class="help">Examples: non-Apple cases, non-Apple chargers, screen protectors.</div>
           </div>
@@ -40,7 +47,13 @@
             <label for="accNoDisc">No-Discount Accessories Subtotal</label>
             <div class="input-wrap money-wrap">
               <span class="prefix">$</span>
-              <input id="accNoDisc" type="text" inputmode="decimal" placeholder="0" />
+              <input
+                id="accNoDisc"
+                type="text"
+                inputmode="decimal"
+                placeholder="0"
+                autocomplete="off"
+              />
             </div>
             <div class="help">Examples: Apple accessories, Apple cables, audio items.</div>
           </div>
@@ -79,14 +92,26 @@
             <div class="device-fields" id="phoneFields" hidden>
               <div class="field">
                 <label for="phoneName">Phone Name</label>
-                <input id="phoneName" type="text" placeholder="e.g., iPhone 16e" />
+                <input
+                  id="phoneName"
+                  type="text"
+                  placeholder="e.g., iPhone 16e"
+                  autocomplete="off"
+                  spellcheck="false"
+                />
               </div>
 
               <div class="field">
                 <label for="phoneRetail">Phone Retail Price</label>
                 <div class="input-wrap money-wrap">
                   <span class="prefix">$</span>
-                  <input id="phoneRetail" type="text" inputmode="decimal" placeholder="0" />
+                  <input
+                    id="phoneRetail"
+                    type="text"
+                    inputmode="decimal"
+                    placeholder="0"
+                    autocomplete="off"
+                  />
                 </div>
                 <div class="help">Phone retail rounds to a whole dollar; down payment keeps financed balance on clean monthly payments.</div>
               </div>
@@ -107,14 +132,26 @@
             <div class="device-fields" id="watchFields" hidden>
               <div class="field">
                 <label for="watchName">Watch Name</label>
-                <input id="watchName" type="text" placeholder="e.g., Apple Watch SE" />
+                <input
+                  id="watchName"
+                  type="text"
+                  placeholder="e.g., Apple Watch SE"
+                  autocomplete="off"
+                  spellcheck="false"
+                />
               </div>
 
               <div class="field">
                 <label for="watchRetail">Watch Retail Price</label>
                 <div class="input-wrap money-wrap">
                   <span class="prefix">$</span>
-                  <input id="watchRetail" type="text" inputmode="decimal" placeholder="0" />
+                  <input
+                    id="watchRetail"
+                    type="text"
+                    inputmode="decimal"
+                    placeholder="0"
+                    autocomplete="off"
+                  />
                 </div>
                 <div class="help">Watch monthly payment rounds up to the nearest cent. The last payment adjusts if needed.</div>
               </div>
@@ -137,7 +174,14 @@
             <label for="taxRate">Tax Rate (%)</label>
             <div class="input-wrap percent-wrap">
               <span class="prefix">%</span>
-              <input id="taxRate" type="number" inputmode="decimal" step="0.01" value="8.9" />
+              <input
+                id="taxRate"
+                type="number"
+                inputmode="decimal"
+                step="0.01"
+                value="8.9"
+                autocomplete="off"
+              />
             </div>
             <div class="help">Example: 8.9</div>
           </div>
@@ -177,7 +221,7 @@
           </div>
         </div>
 
-        <div class="error-box" id="errBox"></div>
+        <div class="error-box" id="errBox" role="alert" aria-live="polite"></div>
       </section>
 
       <section class="summary" id="summary" hidden>
@@ -268,7 +312,7 @@
   </div>
 
   <div class="sticky-quote" id="stickyQuote" hidden>
-    <button class="sticky-quote-btn" id="jumpSummaryBtn" type="button">
+    <button class="sticky-quote-btn" id="jumpSummaryBtn" type="button" aria-label="Jump to quote summary">
       <div>
         <span>Due Today</span>
         <strong id="stickyDue">$0.00</strong>
