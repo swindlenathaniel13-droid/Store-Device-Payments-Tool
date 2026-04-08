@@ -1,13 +1,14 @@
 /*
  * Device Payment Calculator V3
  *
- * Polished/refactored version:
- * - same quote math
- * - cleaner DOM caching
- * - safer theme handling
- * - reduced repeated lookups
- * - small copy fallback
- * - same behavior, cleaner structure
+ * Rep-facing polished version:
+ * - same math logic
+ * - no copy summary button
+ * - no accessory toggles
+ * - always shows:
+ *   Due Today = devices due + accessories due
+ *   Monthly = devices only
+ *   Full Price Today = device payoff + accessories due
  */
 
 const TERM = 24;
@@ -34,11 +35,8 @@ const els = {
   watchRetail: $("watchRetail"),
 
   taxRate: $("taxRate"),
-  addAccToDue: $("addAccToDue"),
-  addAccToFull: $("addAccToFull"),
 
   calcBtn: $("calcBtn"),
-  copyBtn: $("copyBtn"),
   resetBtn: $("resetBtn"),
   errBox: $("errBox"),
 
@@ -94,9 +92,10 @@ const els = {
   cMonthly: $("cMonthly"),
   cTax: $("cTax"),
   cDue: $("cDue"),
+  cAccDue: $("cAccDue"),
+  cTotalDue: $("cTotalDue"),
   cFull: $("cFull"),
-  cSelectedDue: $("cSelectedDue"),
-  cSelectedFull: $("cSelectedFull")
+  cTotalFull: $("cTotalFull")
 };
 
 let timer = null;
@@ -200,8 +199,6 @@ function updateModeChip() {
 function savePrefs() {
   const prefs = {
     taxRate: els.taxRate.value,
-    addAccToDue: els.addAccToDue.checked,
-    addAccToFull: els.addAccToFull.checked,
     themeDark: document.body.classList.contains("dark")
   };
 
@@ -228,9 +225,6 @@ function loadPrefs() {
     if (typeof savedPrefs.taxRate === "string") {
       els.taxRate.value = savedPrefs.taxRate;
     }
-
-    els.addAccToDue.checked = !!savedPrefs.addAccToDue;
-    els.addAccToFull.checked = !!savedPrefs.addAccToFull;
 
     if (typeof savedPrefs.themeDark === "boolean") {
       applyTheme(savedPrefs.themeDark);
@@ -297,9 +291,7 @@ function readState() {
         retail: round2(parseMoney(els.watchRetail))
       }
     },
-    taxRate: parseFloat(els.taxRate.value || "0"),
-    addAccToDue: els.addAccToDue.checked,
-    addAccToFull: els.addAccToFull.checked
+    taxRate: parseFloat(els.taxRate.value || "0")
   };
 }
 
@@ -412,12 +404,14 @@ function calcQuote(state) {
       finalDue: 0,
       finalFull: 0,
       dueLabel: "—",
-      fullLabel: "—"
+      fullLabel: "—",
+      totalDueToday: 0,
+      totalFullToday: 0
     };
   }
 
-  let finalDue = deviceTotals.due;
-  let finalFull = deviceTotals.full;
+  let finalDue = 0;
+  let finalFull = 0;
   let dueLabel = "—";
   let fullLabel = "—";
 
@@ -434,23 +428,11 @@ function calcQuote(state) {
           ? "Phone only"
           : "Watch only";
 
-    if (hasAccessories && state.addAccToDue) {
-      finalDue = round2(finalDue + accessories.due);
-    }
+    finalDue = round2(deviceTotals.due + accessories.due);
+    finalFull = round2(deviceTotals.full + accessories.due);
 
-    if (hasAccessories && state.addAccToFull) {
-      finalFull = round2(finalFull + accessories.due);
-    }
-
-    dueLabel =
-      hasAccessories && state.addAccToDue
-        ? `${baseLabel} + accessories`
-        : baseLabel;
-
-    fullLabel =
-      hasAccessories && state.addAccToFull
-        ? `${baseLabel} + accessories`
-        : baseLabel;
+    dueLabel = hasAccessories ? `${baseLabel} + accessories` : baseLabel;
+    fullLabel = hasAccessories ? "Device payoff + accessories" : "Device payoff only";
   }
 
   return {
@@ -463,8 +445,8 @@ function calcQuote(state) {
     finalFull,
     dueLabel,
     fullLabel,
-    selectedDueTotal: finalDue,
-    selectedFullTotal: finalFull
+    totalDueToday: finalDue,
+    totalFullToday: finalFull
   };
 }
 
@@ -531,9 +513,10 @@ function render(result) {
     setText(els.cMonthly, money(result.deviceTotals.monthly));
     setText(els.cTax, money(result.deviceTotals.tax));
     setText(els.cDue, money(result.deviceTotals.due));
+    setText(els.cAccDue, money(result.accessories.due));
+    setText(els.cTotalDue, money(result.totalDueToday));
     setText(els.cFull, money(result.deviceTotals.full));
-    setText(els.cSelectedDue, money(result.selectedDueTotal));
-    setText(els.cSelectedFull, money(result.selectedFullTotal));
+    setText(els.cTotalFull, money(result.totalFullToday));
     setHidden(els.comboDetails, false);
   } else {
     setHidden(els.comboDetails, true);
@@ -598,8 +581,6 @@ function resetAll() {
   els.phoneRetail.value = "";
   els.watchRetail.value = "";
   els.taxRate.value = "8.9";
-  els.addAccToDue.checked = false;
-  els.addAccToFull.checked = false;
 
   setDeviceVisibility();
   clearError();
@@ -608,95 +589,6 @@ function resetAll() {
   hasCalculated = false;
   updateModeChip();
   savePrefs();
-}
-
-async function copyText(text) {
-  if (navigator.clipboard?.writeText) {
-    await navigator.clipboard.writeText(text);
-    return;
-  }
-
-  const temp = document.createElement("textarea");
-  temp.value = text;
-  temp.setAttribute("readonly", "");
-  temp.style.position = "absolute";
-  temp.style.left = "-9999px";
-  document.body.appendChild(temp);
-  temp.select();
-  document.execCommand("copy");
-  document.body.removeChild(temp);
-}
-
-function copySummary() {
-  if (els.summary.hidden) return;
-
-  const lines = [
-    "Quote Summary",
-    `Due Today: ${els.qDue.textContent}`,
-    `Monthly Payment: ${els.qMonthly.textContent}`,
-    `Pay in Full Today: ${els.qFull.textContent}`,
-    `Due Today Note: ${els.qDueSub.textContent}`,
-    `Pay in Full Note: ${els.qFullSub.textContent}`,
-    "",
-    "Accessories",
-    `Eligible: ${els.bElig.textContent}`,
-    `Discount: ${els.bDisc.textContent}`,
-    `Eligible After: ${els.bEligAfter.textContent}`,
-    `No-Discount: ${els.bNoDisc.textContent}`,
-    `Accessories Subtotal: ${els.bAccSub.textContent}`,
-    `Accessory Tax: ${els.bAccTax.textContent}`,
-    `Accessories Due Today: ${els.bAccDue.textContent}`
-  ];
-
-  if (!els.phoneDetails.hidden) {
-    lines.push("", "Phone");
-    lines.push(`Name: ${els.pName.textContent}`);
-    lines.push(`Retail: ${els.pRetail.textContent}`);
-    lines.push(`Down: ${els.pDown.textContent}`);
-    lines.push(`Balance: ${els.pBal.textContent}`);
-    lines.push(`Monthly: ${els.pMonthly.textContent}`);
-    lines.push(`Tax: ${els.pTax.textContent}`);
-    lines.push(`Due Today: ${els.pDue.textContent}`);
-    lines.push(`Pay in Full: ${els.pFull.textContent}`);
-  }
-
-  if (!els.watchDetails.hidden) {
-    lines.push("", "Watch");
-    lines.push(`Name: ${els.wName.textContent}`);
-    lines.push(`Retail: ${els.wRetail.textContent}`);
-    lines.push(`Down: ${els.wDown.textContent}`);
-    lines.push(`Balance: ${els.wBal.textContent}`);
-    lines.push(`Monthly: ${els.wMonthly.textContent}`);
-    lines.push(`Tax: ${els.wTax.textContent}`);
-    lines.push(`Due Today: ${els.wDue.textContent}`);
-    lines.push(`Pay in Full: ${els.wFull.textContent}`);
-    if (els.watchNote.textContent) {
-      lines.push(`Note: ${els.watchNote.textContent}`);
-    }
-  }
-
-  if (!els.comboDetails.hidden) {
-    lines.push("", "Combined Devices");
-    lines.push(`Devices Added: ${els.cCount.textContent}`);
-    lines.push(`Total Device Retail: ${els.cRetail.textContent}`);
-    lines.push(`Total Monthly: ${els.cMonthly.textContent}`);
-    lines.push(`Total Device Tax: ${els.cTax.textContent}`);
-    lines.push(`Devices Due Today: ${els.cDue.textContent}`);
-    lines.push(`Devices Pay in Full: ${els.cFull.textContent}`);
-    lines.push(`Selected Due Total: ${els.cSelectedDue.textContent}`);
-    lines.push(`Selected Full Total: ${els.cSelectedFull.textContent}`);
-  }
-
-  copyText(lines.join("\n"))
-    .then(() => {
-      els.copyBtn.textContent = "Copied!";
-      setTimeout(() => {
-        els.copyBtn.textContent = "Copy Summary";
-      }, 1000);
-    })
-    .catch(() => {
-      showError("Copy failed. Try again or long-press to copy on your device.");
-    });
 }
 
 function bindMoneyInput(input) {
@@ -719,9 +611,7 @@ function bindEvents() {
   els.taxRate.addEventListener("input", queueRecalc);
   els.taxRate.addEventListener("blur", queueRecalc);
 
-  [els.aarpUsaa, els.addAccToDue, els.addAccToFull].forEach((el) => {
-    el.addEventListener("change", queueRecalc);
-  });
+  els.aarpUsaa.addEventListener("change", queueRecalc);
 
   els.enablePhone.addEventListener("change", () => {
     setDeviceVisibility();
@@ -734,7 +624,6 @@ function bindEvents() {
   });
 
   els.calcBtn.addEventListener("click", () => calculate(true));
-  els.copyBtn.addEventListener("click", copySummary);
   els.resetBtn.addEventListener("click", resetAll);
 
   els.jumpSummaryBtn.addEventListener("click", () => {
