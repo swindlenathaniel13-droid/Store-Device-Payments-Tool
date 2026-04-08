@@ -33,6 +33,8 @@ const els = {
   watchName: $("watchName"),
   phoneRetail: $("phoneRetail"),
   watchRetail: $("watchRetail"),
+  phoneState: $("phoneState"),
+  watchState: $("watchState"),
 
   taxRate: $("taxRate"),
 
@@ -259,6 +261,9 @@ function setDeviceVisibility() {
   els.phoneCard.classList.toggle("active", phoneOn);
   els.watchCard.classList.toggle("active", watchOn);
 
+  setHidden(els.phoneState, !phoneOn);
+  setHidden(els.watchState, !watchOn);
+
   if (!phoneOn) {
     els.phoneName.value = "";
     els.phoneRetail.value = "";
@@ -432,7 +437,7 @@ function calcQuote(state) {
     finalFull = round2(deviceTotals.full + accessories.due);
 
     dueLabel = hasAccessories ? `${baseLabel} + accessories` : baseLabel;
-    fullLabel = hasAccessories ? "Device payoff + accessories" : "Device payoff only";
+    fullLabel = hasAccessories ? "all in today" : "device payoff + tax";
   }
 
   return {
@@ -527,7 +532,7 @@ function render(result) {
   setText(els.qMonthly, money(result.deviceTotals.monthly));
   setText(
     els.qMonthlySub,
-    result.activeDevices.length > 0 ? "Devices only" : "No financed device"
+    result.activeDevices.length > 0 ? "devices only" : "no financed device"
   );
   setText(els.qFull, money(result.finalFull));
   setText(els.qFullSub, result.fullLabel);
