@@ -5,23 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Device Payment Calculator V3</title>
   <meta name="theme-color" content="#ff6b35" />
-  <!-- Link the standalone stylesheet -->
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="app-shell">
     <header class="hero">
-      <!-- Dark mode toggle -->
       <button class="theme-btn" id="themeBtn" type="button" aria-label="Toggle dark mode">🌙</button>
       <h1>Device Payment Calculator</h1>
-      <p>Mobile‑first quote builder for accessories, phone only, watch only, or phone + watch together.</p>
-      <!-- Live status chip showing what is being quoted -->
-      <div class="status-chip" id="quoteMode">
-Ready to build quote</div>
+      <p>Mobile-first quote builder for accessories, phone only, watch only, or phone + watch together.</p>
+      <div class="status-chip" id="quoteMode">Ready to build quote</div>
     </header>
 
     <main class="panel">
-      <!-- Accessories entry -->
       <section class="section">
         <div class="section-head">
           <div class="step-badge">1</div>
@@ -30,7 +25,7 @@ Ready to build quote</div>
             <p>Accessories stay separate from financing. Eligible items can get 30% off with AARP/USAA.</p>
           </div>
         </div>
-        <!-- Eligible and no-discount inputs -->
+
         <div class="grid-2">
           <div class="field">
             <label for="accEligible">Eligible Accessories Subtotal</label>
@@ -38,10 +33,11 @@ Ready to build quote</div>
               <span class="prefix">$</span>
               <input id="accEligible" type="text" inputmode="decimal" placeholder="0" />
             </div>
-            <div class="help">Examples: non‑Apple cases, non‑Apple chargers, screen protectors.</div>
+            <div class="help">Examples: non-Apple cases, non-Apple chargers, screen protectors.</div>
           </div>
+
           <div class="field">
-            <label for="accNoDisc">No‑Discount Accessories Subtotal</label>
+            <label for="accNoDisc">No-Discount Accessories Subtotal</label>
             <div class="input-wrap money-wrap">
               <span class="prefix">$</span>
               <input id="accNoDisc" type="text" inputmode="decimal" placeholder="0" />
@@ -49,7 +45,7 @@ Ready to build quote</div>
             <div class="help">Examples: Apple accessories, Apple cables, audio items.</div>
           </div>
         </div>
-        <!-- AARP/USAA discount toggle -->
+
         <label class="choice-card single-toggle">
           <input id="aarpUsaa" type="checkbox" />
           <span>
@@ -59,7 +55,6 @@ Ready to build quote</div>
         </label>
       </section>
 
-      <!-- Devices entry -->
       <section class="section">
         <div class="section-head">
           <div class="step-badge">2</div>
@@ -68,9 +63,8 @@ Ready to build quote</div>
             <p>Add a phone, a watch, or both. Enter the name and retail price for each device you are quoting.</p>
           </div>
         </div>
-        <!-- Device cards grid -->
+
         <div class="device-grid">
-          <!-- Phone card -->
           <article class="device-card" id="phoneCard">
             <div class="device-card-top">
               <label class="choice-card">
@@ -81,11 +75,13 @@ Ready to build quote</div>
                 </span>
               </label>
             </div>
+
             <div class="device-fields" id="phoneFields" hidden>
               <div class="field">
                 <label for="phoneName">Phone Name</label>
                 <input id="phoneName" type="text" placeholder="e.g., iPhone 16e" />
               </div>
+
               <div class="field">
                 <label for="phoneRetail">Phone Retail Price</label>
                 <div class="input-wrap money-wrap">
@@ -96,7 +92,7 @@ Ready to build quote</div>
               </div>
             </div>
           </article>
-          <!-- Watch card -->
+
           <article class="device-card" id="watchCard">
             <div class="device-card-top">
               <label class="choice-card">
@@ -107,11 +103,13 @@ Ready to build quote</div>
                 </span>
               </label>
             </div>
+
             <div class="device-fields" id="watchFields" hidden>
               <div class="field">
                 <label for="watchName">Watch Name</label>
                 <input id="watchName" type="text" placeholder="e.g., Apple Watch SE" />
               </div>
+
               <div class="field">
                 <label for="watchRetail">Watch Retail Price</label>
                 <div class="input-wrap money-wrap">
@@ -125,7 +123,6 @@ Ready to build quote</div>
         </div>
       </section>
 
-      <!-- Tax & quote settings -->
       <section class="section">
         <div class="section-head">
           <div class="step-badge">3</div>
@@ -134,6 +131,7 @@ Ready to build quote</div>
             <p>Same tax rate applies to devices and accessories. Decide whether accessory due today should be included in the main quote totals.</p>
           </div>
         </div>
+
         <div class="grid-2">
           <div class="field">
             <label for="taxRate">Tax Rate (%)</label>
@@ -143,22 +141,23 @@ Ready to build quote</div>
             </div>
             <div class="help">Example: 8.9</div>
           </div>
+
           <div class="field">
             <label>Term</label>
             <div class="pill">24 months</div>
-            <div class="help">Monthly payment is device‑only. Accessories are never financed.</div>
+            <div class="help">Monthly payment is device-only. Accessories are never financed.</div>
           </div>
         </div>
-        <!-- Option toggles -->
+
         <div class="toggle-grid">
-          
-<label class="choice-card">
+          <label class="choice-card">
             <input id="addAccToDue" type="checkbox" />
             <span>
               <strong>Include accessories in Due Today</strong>
               <small>Add accessory due today into the main Due Today card.</small>
             </span>
           </label>
+
           <label class="choice-card">
             <input id="addAccToFull" type="checkbox" />
             <span>
@@ -169,7 +168,6 @@ Ready to build quote</div>
         </div>
       </section>
 
-      <!-- Action buttons -->
       <section class="section action-section">
         <div class="action-bar">
           <button class="btn primary" id="calcBtn" type="button">Calculate Quote</button>
@@ -178,36 +176,36 @@ Ready to build quote</div>
             <button class="btn ghost" id="resetBtn" type="button">Reset</button>
           </div>
         </div>
+
         <div class="error-box" id="errBox"></div>
       </section>
 
-      <!-- Summary output -->
       <section class="summary" id="summary" hidden>
         <div class="summary-head">
           <h2>Quote Summary</h2>
           <p>Top cards first. Open any breakdown below if you need the math.</p>
         </div>
+
         <div class="summary-cards">
-          <!-- Due Today card -->
           <article class="summary-card summary-card--primary">
             <div class="summary-label">Due Today</div>
             <div class="summary-value" id="qDue">$0.00</div>
             <div class="summary-sub" id="qDueSub">—</div>
           </article>
-          <!-- Monthly card -->
+
           <article class="summary-card">
             <div class="summary-label">Monthly Payment</div>
             <div class="summary-value" id="qMonthly">$0.00</div>
             <div class="summary-sub" id="qMonthlySub">Devices only</div>
           </article>
-          <!-- Pay in Full card -->
+
           <article class="summary-card">
             <div class="summary-label">Pay in Full Today</div>
             <div class="summary-value" id="qFull">$0.00</div>
             <div class="summary-sub" id="qFullSub">—</div>
           </article>
         </div>
-        <!-- Detailed breakdowns -->
+
         <div class="details-stack">
           <details class="details-box">
             <summary>Accessories Breakdown</summary>
@@ -215,13 +213,13 @@ Ready to build quote</div>
               <div class="line"><span>Eligible subtotal</span><strong id="bElig">$0.00</strong></div>
               <div class="line"><span>Discount (30%)</span><strong id="bDisc">$0.00</strong></div>
               <div class="line"><span>Eligible after discount</span><strong id="bEligAfter">$0.00</strong></div>
-              <div class="line"><span>No‑discount subtotal</span><strong id="bNoDisc">$0.00</strong></div>
+              <div class="line"><span>No-discount subtotal</span><strong id="bNoDisc">$0.00</strong></div>
               <div class="line"><span>Accessories subtotal</span><strong id="bAccSub">$0.00</strong></div>
               <div class="line"><span>Accessory tax</span><strong id="bAccTax">$0.00</strong></div>
               <div class="line total"><span>Accessories due today</span><strong id="bAccDue">$0.00</strong></div>
             </div>
           </details>
-          <!-- Phone breakdown -->
+
           <details class="details-box" id="phoneDetails" hidden>
             <summary>Phone Breakdown</summary>
             <div class="details-body">
@@ -235,7 +233,7 @@ Ready to build quote</div>
               <div class="line total"><span>Phone pay in full</span><strong id="pFull">$0.00</strong></div>
             </div>
           </details>
-          <!-- Watch breakdown -->
+
           <details class="details-box" id="watchDetails" hidden>
             <summary>Watch Breakdown</summary>
             <div class="details-body">
@@ -250,7 +248,7 @@ Ready to build quote</div>
               <div class="note" id="watchNote"></div>
             </div>
           </details>
-          <!-- Combined devices breakdown -->
+
           <details class="details-box" id="comboDetails" hidden>
             <summary>Combined Device Totals</summary>
             <div class="details-body">
@@ -268,7 +266,7 @@ Ready to build quote</div>
       </section>
     </main>
   </div>
-  <!-- Sticky quote bar for quick access to results -->
+
   <div class="sticky-quote" id="stickyQuote" hidden>
     <button class="sticky-quote-btn" id="jumpSummaryBtn" type="button">
       <div>
@@ -283,7 +281,6 @@ Ready to build quote</div>
     </button>
   </div>
 
-  <!-- Standalone JavaScript -->
   <script src="app.js" defer></script>
 </body>
 </html>
