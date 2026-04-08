@@ -240,6 +240,10 @@ input[type="number"] {
   gap: 12px;
 }
 
+.action-grid.single {
+  grid-template-columns: 1fr;
+}
+
 .field label {
   display: block;
   margin-bottom: 6px;
@@ -644,7 +648,6 @@ input:focus-visible,
 
   .grid-2,
   .toggle-grid,
-  .action-grid,
   .summary-cards {
     grid-template-columns: 1fr 1fr;
   }
