@@ -5,25 +5,162 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Device Payment Calculator V3</title>
   <meta name="theme-color" content="#ff6b35" />
-  <meta name="description" content="Mobile-first device payment calculator for accessories, phone quotes, watch quotes, and combined quotes." />
+  <meta name="description" content="Mobile-first device payment calculator for phone, watch, tax, and optional accessories." />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="app-shell">
     <header class="hero">
       <button class="theme-btn" id="themeBtn" type="button" aria-label="Toggle dark mode">🌙</button>
+
+      <div class="hero-badge-row">
+        <span class="hero-badge">Rep Tool</span>
+        <span class="hero-badge hero-badge--soft">Quote Builder</span>
+      </div>
+
       <h1>Device Payment Calculator</h1>
-      <p>Mobile-first quote builder for accessories, phone only, watch only, or phone + watch together.</p>
+      <p>Quick rep-facing quote builder for phone, watch, tax, and optional accessories.</p>
       <div class="status-chip" id="quoteMode" role="status" aria-live="polite">Ready to build quote</div>
     </header>
 
     <main class="panel">
-      <section class="section">
+      <!-- DEVICES -->
+      <section class="section section--primary">
         <div class="section-head">
           <div class="step-badge">1</div>
           <div>
-            <h2>Accessories</h2>
-            <p>Accessories stay separate from financing. Eligible items can get 30% off with AARP/USAA.</p>
+            <h2>Devices</h2>
+            <p>Start with the device quote first. Add a phone, a watch, or both.</p>
+          </div>
+        </div>
+
+        <div class="device-grid">
+          <article class="device-card" id="phoneCard">
+            <div class="device-card-top">
+              <label class="choice-card">
+                <input id="enablePhone" type="checkbox" />
+                <span class="choice-copy">
+                  <strong>📱 Add phone</strong>
+                  <small>Enter phone name and retail price manually.</small>
+                </span>
+                <span class="device-state" id="phoneState" hidden>Selected</span>
+              </label>
+            </div>
+
+            <div class="device-fields" id="phoneFields" hidden>
+              <div class="field">
+                <label for="phoneName">Phone Name</label>
+                <input
+                  id="phoneName"
+                  type="text"
+                  placeholder="e.g., iPhone 16e"
+                  autocomplete="off"
+                  spellcheck="false"
+                />
+              </div>
+
+              <div class="field">
+                <label for="phoneRetail">Phone Retail Price</label>
+                <div class="input-wrap money-wrap">
+                  <span class="prefix">$</span>
+                  <input
+                    id="phoneRetail"
+                    type="text"
+                    inputmode="decimal"
+                    placeholder="0"
+                    autocomplete="off"
+                  />
+                </div>
+                <div class="help">Retail rounds to a whole dollar. Down payment keeps monthly financing clean.</div>
+              </div>
+            </div>
+          </article>
+
+          <article class="device-card" id="watchCard">
+            <div class="device-card-top">
+              <label class="choice-card">
+                <input id="enableWatch" type="checkbox" />
+                <span class="choice-copy">
+                  <strong>⌚ Add watch</strong>
+                  <small>Enter watch name and retail price manually.</small>
+                </span>
+                <span class="device-state" id="watchState" hidden>Selected</span>
+              </label>
+            </div>
+
+            <div class="device-fields" id="watchFields" hidden>
+              <div class="field">
+                <label for="watchName">Watch Name</label>
+                <input
+                  id="watchName"
+                  type="text"
+                  placeholder="e.g., Apple Watch SE"
+                  autocomplete="off"
+                  spellcheck="false"
+                />
+              </div>
+
+              <div class="field">
+                <label for="watchRetail">Watch Retail Price</label>
+                <div class="input-wrap money-wrap">
+                  <span class="prefix">$</span>
+                  <input
+                    id="watchRetail"
+                    type="text"
+                    inputmode="decimal"
+                    placeholder="0"
+                    autocomplete="off"
+                  />
+                </div>
+                <div class="help">Monthly rounds up to the nearest cent. Last payment adjusts if needed.</div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- TAX -->
+      <section class="section">
+        <div class="section-head">
+          <div class="step-badge">2</div>
+          <div>
+            <h2>Tax</h2>
+            <p>Same tax rate applies to devices and accessories.</p>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="taxRate">Tax Rate (%)</label>
+            <div class="input-wrap percent-wrap">
+              <span class="prefix">%</span>
+              <input
+                id="taxRate"
+                type="number"
+                inputmode="decimal"
+                step="0.01"
+                value="8.9"
+                autocomplete="off"
+              />
+            </div>
+            <div class="help">Example: 8.9</div>
+          </div>
+
+          <div class="field">
+            <label>Term</label>
+            <div class="pill">24 months</div>
+            <div class="help">Monthly is device-only. Accessories are never financed.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ACCESSORIES -->
+      <section class="section section--optional">
+        <div class="section-head">
+          <div class="step-badge step-badge--muted">3</div>
+          <div>
+            <h2>Accessories <span class="optional-tag">(Optional)</span></h2>
+            <p>Add only if needed. Accessories stay separate from financing.</p>
           </div>
         </div>
 
@@ -61,139 +198,14 @@
 
         <label class="choice-card single-toggle">
           <input id="aarpUsaa" type="checkbox" />
-          <span>
+          <span class="choice-copy">
             <strong>AARP / USAA discount</strong>
             <small>Applies 30% off the eligible accessory subtotal only.</small>
           </span>
         </label>
       </section>
 
-      <section class="section">
-        <div class="section-head">
-          <div class="step-badge">2</div>
-          <div>
-            <h2>Devices</h2>
-            <p>Add a phone, a watch, or both. Enter the name and retail price for each device you are quoting.</p>
-          </div>
-        </div>
-
-        <div class="device-grid">
-          <article class="device-card" id="phoneCard">
-            <div class="device-card-top">
-              <label class="choice-card">
-                <input id="enablePhone" type="checkbox" />
-                <span>
-                  <strong>📱 Add phone</strong>
-                  <small>Enter phone details manually.</small>
-                </span>
-              </label>
-            </div>
-
-            <div class="device-fields" id="phoneFields" hidden>
-              <div class="field">
-                <label for="phoneName">Phone Name</label>
-                <input
-                  id="phoneName"
-                  type="text"
-                  placeholder="e.g., iPhone 16e"
-                  autocomplete="off"
-                  spellcheck="false"
-                />
-              </div>
-
-              <div class="field">
-                <label for="phoneRetail">Phone Retail Price</label>
-                <div class="input-wrap money-wrap">
-                  <span class="prefix">$</span>
-                  <input
-                    id="phoneRetail"
-                    type="text"
-                    inputmode="decimal"
-                    placeholder="0"
-                    autocomplete="off"
-                  />
-                </div>
-                <div class="help">Phone retail rounds to a whole dollar; down payment keeps financed balance on clean monthly payments.</div>
-              </div>
-            </div>
-          </article>
-
-          <article class="device-card" id="watchCard">
-            <div class="device-card-top">
-              <label class="choice-card">
-                <input id="enableWatch" type="checkbox" />
-                <span>
-                  <strong>⌚ Add watch</strong>
-                  <small>Enter watch details manually.</small>
-                </span>
-              </label>
-            </div>
-
-            <div class="device-fields" id="watchFields" hidden>
-              <div class="field">
-                <label for="watchName">Watch Name</label>
-                <input
-                  id="watchName"
-                  type="text"
-                  placeholder="e.g., Apple Watch SE"
-                  autocomplete="off"
-                  spellcheck="false"
-                />
-              </div>
-
-              <div class="field">
-                <label for="watchRetail">Watch Retail Price</label>
-                <div class="input-wrap money-wrap">
-                  <span class="prefix">$</span>
-                  <input
-                    id="watchRetail"
-                    type="text"
-                    inputmode="decimal"
-                    placeholder="0"
-                    autocomplete="off"
-                  />
-                </div>
-                <div class="help">Watch monthly payment rounds up to the nearest cent. The last payment adjusts if needed.</div>
-              </div>
-            </div>
-          </article>
-        </div>
-      </section>
-
-      <section class="section">
-        <div class="section-head">
-          <div class="step-badge">3</div>
-          <div>
-            <h2>Tax & quote settings</h2>
-            <p>Same tax rate applies to devices and accessories. The app always shows the full rep-facing totals automatically.</p>
-          </div>
-        </div>
-
-        <div class="grid-2">
-          <div class="field">
-            <label for="taxRate">Tax Rate (%)</label>
-            <div class="input-wrap percent-wrap">
-              <span class="prefix">%</span>
-              <input
-                id="taxRate"
-                type="number"
-                inputmode="decimal"
-                step="0.01"
-                value="8.9"
-                autocomplete="off"
-              />
-            </div>
-            <div class="help">Example: 8.9</div>
-          </div>
-
-          <div class="field">
-            <label>Term</label>
-            <div class="pill">24 months</div>
-            <div class="help">Monthly payment is device-only. Accessories are never financed.</div>
-          </div>
-        </div>
-      </section>
-
+      <!-- ACTIONS -->
       <section class="section action-section">
         <div class="action-bar">
           <button class="btn primary" id="calcBtn" type="button">Calculate Quote</button>
@@ -205,10 +217,11 @@
         <div class="error-box" id="errBox" role="alert" aria-live="polite"></div>
       </section>
 
+      <!-- SUMMARY -->
       <section class="summary" id="summary" hidden>
         <div class="summary-head">
           <h2>Quote Summary</h2>
-          <p>Top cards first. Open any breakdown below if you need the math.</p>
+          <p>Rep-facing totals first. Open the breakdowns only when you need the math.</p>
         </div>
 
         <div class="summary-cards">
@@ -219,9 +232,9 @@
           </article>
 
           <article class="summary-card">
-            <div class="summary-label">Monthly Payment</div>
+            <div class="summary-label">Monthly</div>
             <div class="summary-value" id="qMonthly">$0.00</div>
-            <div class="summary-sub" id="qMonthlySub">Devices only</div>
+            <div class="summary-sub" id="qMonthlySub">devices only</div>
           </article>
 
           <article class="summary-card">
