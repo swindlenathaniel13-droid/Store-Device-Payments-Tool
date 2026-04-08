@@ -165,7 +165,7 @@
           <div class="step-badge">3</div>
           <div>
             <h2>Tax & quote settings</h2>
-            <p>Same tax rate applies to devices and accessories. Decide whether accessory due today should be included in the main quote totals.</p>
+            <p>Same tax rate applies to devices and accessories. The app always shows the full rep-facing totals automatically.</p>
           </div>
         </div>
 
@@ -192,31 +192,12 @@
             <div class="help">Monthly payment is device-only. Accessories are never financed.</div>
           </div>
         </div>
-
-        <div class="toggle-grid">
-          <label class="choice-card">
-            <input id="addAccToDue" type="checkbox" />
-            <span>
-              <strong>Include accessories in Due Today</strong>
-              <small>Add accessory due today into the main Due Today card.</small>
-            </span>
-          </label>
-
-          <label class="choice-card">
-            <input id="addAccToFull" type="checkbox" />
-            <span>
-              <strong>Include accessories in Pay in Full</strong>
-              <small>Add accessory due today into the main Pay in Full card.</small>
-            </span>
-          </label>
-        </div>
       </section>
 
       <section class="section action-section">
         <div class="action-bar">
           <button class="btn primary" id="calcBtn" type="button">Calculate Quote</button>
-          <div class="action-grid">
-            <button class="btn ghost" id="copyBtn" type="button">Copy Summary</button>
+          <div class="action-grid single">
             <button class="btn ghost" id="resetBtn" type="button">Reset</button>
           </div>
         </div>
@@ -244,7 +225,7 @@
           </article>
 
           <article class="summary-card">
-            <div class="summary-label">Pay in Full Today</div>
+            <div class="summary-label">Full Price Today</div>
             <div class="summary-value" id="qFull">$0.00</div>
             <div class="summary-sub" id="qFullSub">—</div>
           </article>
@@ -294,16 +275,17 @@
           </details>
 
           <details class="details-box" id="comboDetails" hidden>
-            <summary>Combined Device Totals</summary>
+            <summary>Combined Totals</summary>
             <div class="details-body">
               <div class="line"><span>Devices added</span><strong id="cCount">0</strong></div>
               <div class="line"><span>Total device retail</span><strong id="cRetail">$0.00</strong></div>
               <div class="line"><span>Total monthly payment</span><strong id="cMonthly">$0.00</strong></div>
               <div class="line"><span>Total device tax</span><strong id="cTax">$0.00</strong></div>
               <div class="line"><span>Devices due today</span><strong id="cDue">$0.00</strong></div>
+              <div class="line"><span>Accessories due today</span><strong id="cAccDue">$0.00</strong></div>
+              <div class="line"><span>Total due today</span><strong id="cTotalDue">$0.00</strong></div>
               <div class="line"><span>Devices pay in full</span><strong id="cFull">$0.00</strong></div>
-              <div class="line"><span>Selected due today total</span><strong id="cSelectedDue">$0.00</strong></div>
-              <div class="line total"><span>Selected pay in full total</span><strong id="cSelectedFull">$0.00</strong></div>
+              <div class="line total"><span>Full price today</span><strong id="cTotalFull">$0.00</strong></div>
             </div>
           </details>
         </div>
